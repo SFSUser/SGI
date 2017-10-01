@@ -1,0 +1,109 @@
+/* 
+    Document   : styles
+    Created on : 22/01/2013, 08:54:36 PM
+    Author     : Hebras EU
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+body{
+    padding: 0px;
+    margin: 0px;
+}
+
+img{
+    border-style: none;
+    border-width: 0px;
+}
+
+.locker{
+    z-index: 99999;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    opacity: 0.95;
+    margin: 0px;
+}
+.locker-loader{
+    background-color: whitesmoke;
+    width: 500px;
+    margin: auto;
+    padding: 10px;
+    margin-top: 150px;
+    border-radius: 10px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #999;
+}
+
+.metric {
+    background: #fefefe; /* Old browsers */
+    background: -moz-linear-gradient(top, #fefefe 0%, #f2f3f2 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fefefe), color-stop(100%,#f2f3f2)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #fefefe 0%,#f2f3f2 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #fefefe 0%,#f2f3f2 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #fefefe 0%,#f2f3f2 100%); /* IE10+ */
+    background: linear-gradient(top, #fefefe 0%,#f2f3f2 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fefefe', endColorstr='#f2f3f2',GradientType=0 ); /* IE6-9 */
+    border: 1px solid #ccc;
+    float: left;
+    font-size: 20px;
+    margin: 0;
+    padding: 10px 0 10px 0px;
+    width: 100%;
+    color: #999;
+}
+.metric:hover {
+    border-bottom-color: #b1b1b1;
+    color: #6699ff;
+}
+.tag{
+    padding: 10px;
+    margin: 0px;
+    background-color: #F4F4F4;
+    border-width: 1px;
+    border-color: #EEEEEE;
+    border-style: solid;
+    text-decoration:none;
+    font-family:Arial, Helvetica, sans-serif;
+    text-decoration: none;
+    color:#09C;
+    text-align: center;
+}
+.tag:hover, .select{
+    background-color: white;
+    color: #0CF;
+}
+.sty-label-blue{
+    text-decoration:none;
+    font-family:Arial, Helvetica, sans-serif;
+    color:#09C;
+}
+.sty-label-gray{
+    text-decoration:none;
+    font-family:Arial, Helvetica, sans-serif;
+    color:#666;
+}
+.sty-img-chart{
+    background-image: url(../img/chart.png);
+    background-repeat: no-repeat;
+    margin: 5px 10px 0 10px;
+    width: 16px;
+    height: 16px;
+    float: left;
+}
+
+.sty-bar-main{
+    font-size: 30px;
+    color: orangered;
+    background-color: #EEEEEE;
+    font-family:Arial, Helvetica, sans-serif;
+    border-color: #ccc;
+    border-width: 1px;
+    border-style: solid;
+    padding: 20px 0 20px 20px;
+    margin: 0px;
+}
+.sty-bar-main:hover{
+    border-color: #b1b1b1;
+}
