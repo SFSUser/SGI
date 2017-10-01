@@ -1,0 +1,82 @@
+{% for value in values %}
+     <script type='text/javascript'>
+        google.load('visualization', '1', {'packages': ['geochart']});
+        google.setOnLoadCallback(drawMarkersMap{{value.country_count}});
+                                                
+        function drawMarkersMap{{value.country_count}}() {
+            var data = google.visualization.arrayToDataTable({{value.regions|json_encode()|raw}});
+
+            var options = {
+                region: '{{value.country_code}}',
+                displayMode: 'markers',
+                colorAxis: {colors: ['green', 'blue']}
+            };
+
+            var chart = new google.visualization.GeoChart(document.getElementById('region_geo{{value.country_count}}'));
+            chart.draw(data, options);
+        };
+    </script>
+    <script type='text/javascript'>
+        google.load('visualization', '1', {packages:['table']});
+        google.setOnLoadCallback(drawTable{{value.country_count}});
+                                            
+        function drawTable{{value.country_count}}() {
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Region');
+            data.addColumn('string', 'Visitas');
+            //types: booelan, number, string
+            data.addRows({{value.regions|json_encode()|raw}});
+
+            var table = new google.visualization.Table(document.getElementById('table_country_geo{{value.country_count}}'));
+            table.draw(data, {showRowNumber: true});
+        }
+    </script>
+    <a href="javascript:hideShow('section{{value.country_count}}');">
+        <div class="metric">
+            <div style="float: left; width: 70px;margin-left: 10px;"><span style="color: green;">{{value.visitas_pais}}</span></div>
+            <div style="float: left;margin-top:3px;margin-right: 5px;margin-right: 5px;" class="flag flag-{{value.country_code|lower}}"></div>
+            {{value.nombre_pais}}
+        </div>
+    </a>
+    <div style="display: none;" id="section{{value.country_count}}">
+        <table width="100%">
+            <tr>
+                <td widrh="60%">
+                    <div id="region_geo{{value.country_count}}"></div>
+                </td>
+                <td>
+                    <div id="table_country_geo{{value.country_count}}"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+{% endfor %}
+<script type="text/javascript">
+    function hideAll(){
+        for(var i=1;i<={{country_count}};i++){
+            try{
+                hide('section' + i);
+            }catch(ex){
+            }
+        }
+    }
+    function hide(id){
+        var element = document.getElementById(id);
+        element.style.display = "none";
+    }
+    function show(id){
+        var element = document.getElementById(id);
+        element.style.display = "block";
+    }
+    function hideShow(id){
+        var element = document.getElementById(id);
+        var state = element.style.display;
+        hideAll();
+        if(state == "block"){
+            element.style.display = "none";
+        }else{
+            element.style.display = "block";
+        }
+    }
+</script>
+<div style="height: 20px"></div>

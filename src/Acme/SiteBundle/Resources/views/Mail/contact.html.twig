@@ -1,0 +1,12 @@
+{# empty Twig template #}
+{% set hostname = 'http://' ~ app.request.getHost() %}
+<div style="padding: 10px;border-radius: 10px;border-color: green;border-width: 1px;border-style: solid;">
+    {#<img height="100" src="http://i.imgur.com/RFkTTrl.png"/>#}
+    <span style="font-size: 25px;color:green;">SGISAS: Centro de entrenamiento laboral</span>
+    <br>
+    <span style="color:green; font-size: 20px;">Un nuevo cliente ha contactado:</span>
+    <hr>
+    <span style="color: green;font-size: 15px;">{{message|raw}}</span><br>
+
+    <span>Puedes inciar sesión haciendo <a href="{{hostname}}{{path('adminlogin')}}">click en este enlace.</a></span>
+</div>

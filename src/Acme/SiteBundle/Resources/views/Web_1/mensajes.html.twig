@@ -1,0 +1,9 @@
+{# empty Twig template #}
+{% extends template_parent %}
+{% block title %}
+    Mensajes
+{% endblock %}
+{% block body %}
+    <h2>Mensajes</h2>
+    {% block component %} {{ parent() }}{% endblock %}
+{% endblock %}

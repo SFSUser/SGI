@@ -1,0 +1,44 @@
+{% extends "AcmeSFSBundle:Schema:print_base.html.twig" %}
+{% block body %}
+
+    {% include 'Acme' ~ bundle ~ 'Bundle:Schemas:print_header.html.twig' ignore missing %}
+    {% include 'Acme' ~ bundle ~ 'Bundle:Schemas:' ~ entity ~ '_header.html.twig' ignore missing %}
+
+    <h2>Listado de la consulta para {{entity}}</h2>
+    <hr>
+    <table>
+        <thead>
+            <tr>
+                {% for x in data %}
+                    {% if loop.index <= 1 %}
+                        {% for y in x.columns %}
+                            <th>{{y.column_name|capitalize|raw}}</th>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for x in data %}
+                <tr>
+                    {% for y in x.columns %}
+                        <td>{{y.list_formatted|raw}}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            {% for x in data %}
+                {% if loop.index == 1 and resultados|length > 1 %}
+                    <tr>
+                        {% for y in x.columns %}
+                            <td>
+                                {% if attribute(resultados, y.column_name) is defined %}
+                                    <span>{{attribute(resultados, y.column_name)|round(1, 'floor') }}</span>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

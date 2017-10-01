@@ -1,0 +1,140 @@
+{# empty Twig template #}
+
+<div class="sty-box-padding-5">
+    <form id="form_message">
+        <div class="fixer">
+            <div class="input-group">
+                <span class="input-group-addon">Título del mensaje</span>
+                <input id="message_titulo" required="" type="text" class="form-control" placeholder="Título del mensaje">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">Correo del destinatario</span>
+                <input required="" type="email" id="message_destinatario" type="text" class="form-control" placeholder="Correo del destinatario">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">Mi correo</span>
+                <input value="{{render(controller('AcmeSFSBundle:Segment:print', {identifier: 'msg_sender'}))|striptags}}" required="" type="email" id="message_email" type="text" class="form-control" placeholder="Mi correo">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">Archivos adjuntos</span>
+                <input id="file_selector" multiple="" type="file" id="message_email" type="text" class="form-control">
+            </div>
+            <div class="sty-box-padding-5">
+                <b class="sty-label-red">Atención: </b>Tenga en cuenta que el mensaje podría llegar a la carpeta de <b>correo no deseado</b> del destinatario.
+            </div>
+
+            <textarea id="message_input">
+                {{render(controller('AcmeSFSBundle:Segment:print', {identifier: 'msg_template'}))}}
+            </textarea>
+            {{ render(controller('AcmeSFSBundle:Utils:tinyeditor', {'input_id' : 'message_input','form_id' : 'form_message'})) }}
+
+            <div class="sty-box-padding-5">
+                <div id="message_notify">
+                </div>
+                <input id="message_submiter" type="submit" class="btn btn-info" value="Enviar mensaje"/>
+                <div id="message_sending" style="display: none;">
+                    <img src="{{asset('/bundles/acmesfs/img/loading_mini.gif')}}"/>
+                    <span class="sty-label-blue">Enviando mensaje...</span>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    //Envía el email.
+    var ContactForm = {
+        selected_files: {},
+        successCallBack: null,
+        errorCallBack: null,
+        sendMessage: function(from, to, title, content) {
+            var context = this;
+            $("#message_sending").show();
+            $("#message_submiter").hide();
+
+            var data = new FormData();
+            $.each(this.selected_files, function(key, value)
+            {
+                data.append(key, value);
+            });
+            data.append("from", from);
+            data.append("to", to);
+            data.append("title", title);
+            data.append("content", content);
+
+            $.ajax({
+                url: "{{path('url_simplemail')}}",
+                type: "POST",
+                data: data,
+                cache: false,
+                dataType: 'json',
+                processData: false, // Don't process the files
+                contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+
+                success: function(r) {
+                    console.log(r);
+                    switch (r.result) {
+                        case 2:
+                            showNotify("Error:", "por favor ingrese todos los campos.", 1);
+                            break;
+                        case 1:
+                            if (context.successCallBack !== null) {
+                                context.successCallBack(r);
+                            }
+                            showNotify("Correcto:", "el mensaje ha sido enviado.", 0);
+                            break;
+                        case 0:
+                            if (context.errorCallBack !== null) {
+                                context.errorCallBack(null);
+                            }
+                            showNotify("Error:", "ocurrió un error con el servicio de E-Mail. Por favor envíe el mensaje por otro medio.", 1);
+                            break;
+                    }
+                    $("#message_sending").hide();
+                    $("#message_submiter").show();
+                },
+                error: function(e) {
+                    if (context.errorCallBack !== null) {
+                        context.errorCallBack(e);
+                    }
+                    $("#message_sending").hide();
+                    $("#message_submiter").show();
+                    console.log(e);
+                    showNotify("Error:", "ocurrió un error en el servidor. Por favor envíe el mensaje por otro medio.", 1);
+                }
+            });
+        }
+    };
+
+    function showNotify(cat, title, type) {
+        switch (type) {
+            default:
+            case 0:
+                type = "info";
+                break;
+            case 1:
+                type = "danger";
+                break;
+        }
+        var str = '<div class="alert alert-' + type + '" role="alert"><button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Cerrar</span></button><strong>{main}</strong> {desc}</div>';
+        str = str.replace("{main}", cat).replace("{desc}", title);
+        $("#message_notify").prepend(str);
+    }
+</script>
+
+
+<script>
+    $(function() {
+        $("#file_selector").on('change', function(e) {
+            //alert("jhey");
+            ContactForm.selected_files = e.target.files;
+        });
+        $("#form_message").submit(function(e) {
+            e.preventDefault();
+            var msg_title = $("#message_titulo").val();
+            var msg_content = $("#message_input").val();
+            var msg_to = $("#message_destinatario").val();
+            var msg_from = $("#message_email").val();
+            ContactForm.sendMessage(msg_from, msg_to, msg_title, msg_content);
+        });
+    });
+</script>

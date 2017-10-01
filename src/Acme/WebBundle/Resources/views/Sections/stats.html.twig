@@ -1,0 +1,5 @@
+{# empty Twig template #}
+{% extends "AcmeWebBundle:Default:base.html.twig" %}
+{% block component %}
+    {{render(controller('AcmeSFSBundle:Stats:index', {id: ga_id, type: app.request.get('type')}))}}
+{% endblock %}

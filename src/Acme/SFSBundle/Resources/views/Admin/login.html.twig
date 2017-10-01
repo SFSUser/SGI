@@ -1,0 +1,95 @@
+
+<script type="text/javascript">
+    function loggin() {
+        $.ajax({
+            url: "{{path('admin_login')}}",
+            type: "post",
+            data: "user={{user}}&password=" + $("#password_{{user}}").val(),
+            success: function(data) {
+                console.log(data);
+                //alert(data);
+                switch (data["result"]) {
+                    case -666:
+                        showMessage("Error en la respuesta del servidor.", "login_message", "error", "")
+                        break;
+                    case 0:
+                        $("#password_{{user}}").val("");
+                        showMessage("La contraseña ingresada no es válida.", "login_message", "error", "")
+                        break;
+                    case 1:
+                        logAction();
+                        //reloadPage();
+                        break;
+                }
+            }
+        });
+    }
+    function unloggin() {
+        $.ajax({
+            url: "{{path('admin_logout')}}",
+            type: "post",
+            data: "user={{user}}",
+            success: function(data) {
+                switch (data["result"]) {
+                    case -666:
+                        showMessage("Error en la respuesta del servidor.", "login_message", "error", "")
+                        break;
+                    case 1:
+                        unlogAction();
+                        //reloadPage();
+                        break;
+                }
+            }
+        });
+    }
+
+    function logAction() {
+        $("#login_form").attr("class", "sty-box-off");
+        $("#logout_form").attr("class", "sty-box-on");
+    }
+    function unlogAction() {
+        $("#login_form").attr("class", "sty-box-on");
+        $("#logout_form").attr("class", "sty-box-off");
+        $("#password_{{user}}").val("");
+    }
+
+    $(document).ready(function() {
+        if ({{login}}) {
+            logAction();
+        }
+        $("#password_{{user}}").keyup(function(event) {
+            if (event.keyCode == 13) {
+                loggin();
+            }
+        });
+    });
+</script>
+<center>
+    <table>
+        <tr>
+            <td width="220px"><img width="auto" height="141px" src="{{asset('/img/logo.png')}}"/></td>
+            <td>
+                <div id="login_form">
+                    <span class="sty-label-blue sty-font-20">Escriba la contraseña:</span><br/>
+                    <table>
+                        <tr>
+                            <td><input id="password_{{user}}" type="password" class="input-text-radius"/></td>
+                            <td><a href="javascript:loggin();"><img src="{{asset('bundles/acmesfs/img_icons/acept.gif')}}"/></a></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><div id="login_message"></div></td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="logout_form" class="sty-box-off">
+                    <table>
+                        <tr>
+                            <td><span class="sty-label-blue sty-font-20">Se ha iniciado sessión </span> </td>
+                            <td><button onclick="unloggin();" class="button"><img src="{{asset('bundles/acmesfs/img_icons/logout.png')}}" align="top"/> Cerrar sesión</button></td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </table>
+</center>

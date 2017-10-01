@@ -1,0 +1,51 @@
+{# empty Twig template #}
+{# empty Twig template #}
+{% extends "AcmeWebBundle:Default:base.html.twig" %}
+{% block component %}
+    <div style="margin: 20px 0 100px 0;overflow: auto;">
+        <div class="col-md-4">
+            <ul class="list-group">
+                {% for x in acerca %}
+                    <a href="{{path('acerca_id_url', {id: x.id})}}" class="list-group-item sty-box-overflow-auto {% if acerca_first.id == x.id %}active{% endif %}">
+                        <h4 class="list-group-item-heading">{{x.titulo}}</h4>
+                        <img src="{{x.imagenes_first.small_square}}" class="media-object pull-left sty-box-padding-5">
+                        <p class="list-group-item-text">{{x.contenido|striptags|slice(0, 200)|raw}}</p>
+                    </a>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-md-8">
+            <div class="sheet-art sty-box-padding-5">
+                {% if acerca_first is not null %}
+                    <div class="page-header">
+                        <h1>{{acerca_first.titulo}}</small></h1>
+                    </div>
+                    {% include 'AcmeWebBundle:Segments:carousel.html.twig' with {"imagenes": acerca_first.imagenes_all, "titulo": acerca_first.titulo} only %}
+             
+
+                    <div class="segment-content">
+                        {{acerca_first.contenido|raw}}
+                        <hr>
+                        {#% for x in servicio_tags %}
+                            <span class="label label-default">{{x}}</span>
+                        {% endfor %#}
+                    </div>
+                {% else %}
+                    <h1>Sin contenido</h1>
+                {% endif %}
+                <hr class="featurette-divider"/>
+                <div class="sty-box-overflow-auto">
+                    <div class="pull-right">
+                        {{render(controller('AcmeSFSBundle:Utils:social', 
+{'share_link': app.request.getUri(), 'site_link':app.request.getHost(),'description':acerca_first.titulo}
+))}}
+                    </div>
+                </div>
+                <hr class="featurette-divider"/>
+                <div class="segment-content">
+                    {{render(controller('AcmeSFSBundle:Utils:facebookcomments', {url: path('portafolio_url', {id: acerca_first.id})}))}}
+                </div>
+            </div>
+        </div> 
+    </div>
+{% endblock %}

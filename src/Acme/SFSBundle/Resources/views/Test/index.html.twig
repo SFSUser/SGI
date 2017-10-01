@@ -1,0 +1,12 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}AcmeSFSBundle:Test:index{% endblock %}
+
+{% block body %}
+<h1>Welcome to the Test:index page</h1>
+<hr>
+{{content|raw}}
+<input id="color"/>
+{{render(controller('AcmeSFSBundle:Utils:colors', {'input_id':'color'}))}}
+{{render(controller('AcmeSFSBundle:Utils:tagger', {'input_id':'color','tags':''}))}}
+{% endblock %}

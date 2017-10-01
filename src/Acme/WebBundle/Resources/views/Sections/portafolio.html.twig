@@ -1,0 +1,80 @@
+{# empty Twig template #}
+{% extends "AcmeWebBundle:Default:base.html.twig" %}
+{% block component %}
+    <style>
+        .portafolio-imagen{
+            border-radius: 10px;
+            max-width: 100%;
+        }
+    </style>
+    <div style="overflow: auto;margin-top: 10px;" class="sheet-art sty-box-padding-5">
+        <div class="col-md-4">
+            <img class="portafolio-imagen" src="{{servicio.refcategoria.imagen}}"/>
+        </div>
+        <div class="col-md-8">
+            <h3>{{servicio.refcategoria.titulo}}</h3>
+            {{servicio.refcategoria.contenido|raw}}
+        </div>
+    </div>
+    <div style="margin: 20px 0 100px 0;overflow: auto;">
+
+        <div class="col-md-4">
+            <ul class="list-group">
+                {% for x in portafolio %}
+                    <a href="{{path('portafolio_ca_url', {ca: x.id})}}" class="list-group-item {% if servicio.refcategoria.id == x.id %}active{% endif %}">
+                        <h4 class="list-group-item-heading">{{x.titulo}}</h4>
+                       {# <p class="list-group-item-text">{{x.contenido|striptags|slice(0, 200)|raw}}</p>#}
+                    </a>
+                {% endfor %}
+            </ul>
+            {% if servicio is not null %}
+                <ul class="list-group">
+                    {% for x in servicios_array %}
+                        {% if x.categoria == portafolio_first.id %}
+                            <a href="{{path('portafolio_id_url', {id: x.id})}}" class="list-group-item sty-box-overflow-auto {% if servicio.id == x.id %}active{% endif %}">
+                                <h4 class="list-group-item-heading">{{x.titulo}}</h4>
+                                <img src="{{x.imagenes_first.small_square}}" class="media-object pull-left sty-box-padding-5">
+                                <p class="list-group-item-text">{{x.contenido|striptags|slice(0, 200)|raw}}</p>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <div class="sheet-art sty-box-padding-5">
+                {% if servicio is not null %}
+                    <div class="page-header">
+                        <h1>{{servicio.titulo}} <small>{{servicio.refcategoria.titulo}}</small></h1>
+                    </div>
+                    {% include 'AcmeWebBundle:Segments:carousel.html.twig' with {"imagenes": servicio_array.imagenes_all, "titulo": servicio_array.titulo} only %}
+
+
+                    <div class="segment-content">
+                        {{servicio.contenido|raw}}
+                        <hr>
+                        {% for x in servicio_tags %}
+                            <span class="label label-default">{{x}}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <h1>Sin contenido</h1>
+                {% endif %}
+                <hr class="featurette-divider"/>
+                <div class="sty-box-overflow-auto">
+                    <div class="pull-right">
+                        {{render(controller('AcmeSFSBundle:Utils:social', 
+{'share_link': app.request.getUri(), 'site_link':app.request.getHost(),'description':servicio_array.titulo}
+))}}
+                    </div>
+                </div>
+                <hr class="featurette-divider"/>
+                <div class="segment-content">
+                    {{render(controller('AcmeSFSBundle:Utils:facebookcomments', {url: path('portafolio_url', {id: servicio_array.id})}))}}
+                </div>
+            </div>
+        </div> 
+    </div>
+    {#<center><a href="{{path('url_contacto')}}" class="btn btn-info sty-font-30">Contáctenos</a></center>#}
+
+{% endblock %}

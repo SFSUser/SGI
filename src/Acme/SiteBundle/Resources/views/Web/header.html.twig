@@ -1,0 +1,69 @@
+{# empty Twig template #}
+
+{% set seccion = app.request.requestUri %}
+<script src="/jQuery/ImageSlider/js/modernizr.custom.js"></script>
+<script src="/jQuery/ImageSlider/js/jquery.cbpFWSlider.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/jQuery/ImageSlider/css/component.css" />
+<script>
+    $(function () {
+        $(window).scroll(function () {
+            var menuBar = $(".www-menu");
+            var element = $('.www-header');
+            var aTop = element.height() - $(menuBar).height();
+
+            if ($(this).scrollTop() >= aTop) {
+                menuBar.attr("class", "www-menu www-menu-float");
+            } else {
+                menuBar.attr("class", "www-menu");
+            }
+        });
+    });
+</script>
+<div class="www-header">
+    <div class="logo layout-responsive-desktop">
+        <a href="{{path('url_main')}}"><img height="80px" src="{{asset("/img/logo_completo.png")}}"/></a>
+    </div>
+    <div class="layout-responsive-mobil" style="background-color: white;padding: 5px;opacity: 0.8;">
+        <img width="100%" src="{{asset("/img/logo_completo.png")}}"/>
+    </div>
+    <ul class="www-menu">
+        <li>
+            <a class="{% if seccion == '/' %}www-menu-active{% endif %}" href="{{path('url_main')}}">Inicio</a></li>
+            {#<li><a href="#">Acerca</a></li>
+            <li><a href="#">Servicios</a></li>#}
+        <li>
+            <a class="{% if 'acerca' in seccion %}www-menu-active{% endif %}" href="{{path('acerca_url')}}">Acerca</a>
+            {{render(controller("AcmeSiteBundle:Default:frontAcerca", {menu: true}))}}
+        </li>
+        <li><a class="{% if 'noti' in seccion %}www-menu-active{% endif %}" href="{{path('noticias_url')}}">Noticias</a></li>
+        <li>
+            <a class="{% if 'port' in seccion %}www-menu-active{% endif %}" href="{{path('portafolio_url')}}">Portafolio</a>
+            {{render(controller("AcmeSiteBundle:Default:frontPortafolio", {menu: true}))}}
+        </li>
+        <li>
+            <a class="{% if 'cert' in seccion %}www-menu-active{% endif %}" href="{{path('url_verify')}}">Certificados</a>
+        </li>
+        <li>
+            <a class="{% if 'contact' in seccion %}www-menu-active{% endif %}" href="{{path('contacto_url')}}">Contacto</a>
+        </li>
+        {% if is_granted("ROLE_ADMIN") %}
+            <li>
+                <a class="{% if 'secure' in seccion %}www-menu-active{% endif %}" href="#">Administrar</a>
+                <ul>
+                    <li><a href="{{path('url_mensajes')}}"><i class="glyphicon glyphicon-inbox"></i> Mensajes</a></li>
+                    <li><a href="{{path('url_stats',{id: '104407995'})}}"><i class="glyphicon glyphicon-stats"></i> Estadísticas</a></li>
+                    <li class="www-menu-divider"></li>
+                    <li><a href="{{path('list_editor',{bundle:'Web', entity:'WebAcerca'})}}"><i class="glyphicon glyphicon-list"></i> Acerca</a></li>
+                    <li><a href="{{path('list_editor',{bundle:'Web', entity:'WebPortafolio'})}}"><i class="glyphicon glyphicon-list"></i> Portafolio</a></li>
+                    <li><a href="{{path('list_editor',{bundle:'Web', entity:'WebServicios'})}}"><i class="glyphicon glyphicon-list"></i> Servicios</a></li>
+                    <li><a href="{{path('list_editor',{bundle:'Web', entity:'WebNoticias'})}}"><i class="glyphicon glyphicon-list"></i> Noticias</a></li>
+                    <li class="www-menu-divider"></li>
+                    <li><a href="{{path('adminlogout')}}"><i class="glyphicon glyphicon-log-out"></i> Cerrar sesión</a></li>
+                </ul>
+            </li>
+        {% endif %}
+        {#<li><a href="#">Contacto</a></li>
+        <li><a href="#">Admin</a></li>#}
+    </ul>
+    <div style="height: 50px;"></div>
+</div>

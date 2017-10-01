@@ -1,0 +1,56 @@
+{# empty Twig template #}
+<div>
+    <h3 class="">Ingresa tus datos para que podamos contactarte:</h3>
+    <hr>
+    <form id="contact_form">
+        {#<b class="">*Su nombre</b><br>#}
+        <input placeholder="Su nombre o el de la empresa" id="empresa" required="" class="form-control" type="text"/><br>
+        {#<b class="">*Su apellido</b><br>#}
+        <input placeholder="Cédula o Nit de la empresa" id="nit" required="" class="form-control" type="text"/><br>
+        {#<b class="">*Su correo</b><br>#}
+        <input placeholder="Escribe tu correo" id="correo" required="" class="form-control" type="email"/><br>
+        {#<b class="">Telefono / Celular</b><br>#}
+        <input placeholder="Escribe tu numero de teléfono o celular" id="telefono" class="form-control" type="number"/><br>
+        {#<b class="">*Mensaje</b><br>#}
+        <textarea placeholder="Deja tu mensaje" id="mensaje" required="" style="height: 100px" class="form-control"></textarea><br>
+        <input id="cotizacion" type="hidden" class="form-control"/><br>
+        <input class="button" type="submit" value="Enviar mensaje"/>
+        <br><br>
+        <!--<img width="100px" src="{{asset('bundles/acmesfs/img/up_arrow.png')}}"/>-->
+        <br>
+        <div class="sty-font-median">
+            Por favor, ingresa tus datos y deja el mensaje
+        </div>
+    </form>
+</div>
+{# Esta será la plantilla que se guardará en la base de datos (Y tambíen enviada claro.)#}
+<div style="display: none;">
+    <h1 id="titulo_msg">Nuevo mensaje de: <b class="empresa"></b></h1>
+    <div id="contact_template">
+        <table>
+            <tr>
+                <td class="sty-label-blue">Nombre/Empresa</td>
+                <td class="empresa sty-label-gray"></td>
+            </tr>
+            <tr>
+                <td class="sty-label-blue">Cédula/Nit</td>
+                <td class="nit sty-label-gray"></td>
+            </tr>
+            <tr>
+                <td class="sty-label-blue">Correo</td>
+                <td class="correo sty-label-gray"></td>
+            </tr>
+            <tr>
+                <td class="sty-label-blue">Telefono</td>
+                <td class="telefono sty-label-gray"></td>
+            </tr>
+            <tr>
+                <td class="sty-label-blue">Mensaje</td>
+                <td class="mensaje sty-label-gray"></td>
+            </tr>
+        </table>
+        <hr>
+        <span class="sty-label-blue">Elementos cotizados:</span>
+        <ul id="cotizacion-lista"></ul>
+    </div>
+</div>

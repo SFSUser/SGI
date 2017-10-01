@@ -1,0 +1,20 @@
+{# empty Twig template #}
+<div class="cbp-fwslider">
+    <ul>
+        {% for x in data %}
+            <li style="background-image: linear-gradient(to bottom, transparent, white), url({{x.imagen}});background-size: cover;background-position: center; min-height: 450px">
+                <div class="www-gallery-slider">
+                    <div class="col-md-6">
+                        <span class="sty-font-giant sty-label-white www-gallery-title layout-responsive-desktop">{{x.titulo|raw}}</span>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="www-gallery-text sty-box-overflow-auto">
+                            {{x.contenido|raw}}
+                            <a class="btn btn-info pull-right" href="{{path('portafolio_ca_url', {ca: x.id})}}">Conocer más...</a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+</div>

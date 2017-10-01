@@ -1,0 +1,21 @@
+{# empty Twig template #}
+{% extends "AcmeSFSBundle:Schema:print_base.html.twig" %}
+{% block body %}
+    {% include 'Acme' ~ bundle ~ 'Bundle:Schemas:print_header.html.twig' ignore missing %}
+    {% include 'Acme' ~ bundle ~ 'Bundle:Schemas:' ~ entity ~ '_header.html.twig' ignore missing %}
+
+    <h2>Imprimiendo elemento #{{element.id}} de la tabla {{entity}}</h2>
+    <hr>
+    <table>
+        <tbody>
+            {% for e in element.columns %}
+                <tr>
+                    <td><b>{{e.column_name|capitalize}}</b></td>
+                    <td>
+                        {{e.list_formatted|raw}}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

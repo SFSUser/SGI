@@ -1,0 +1,63 @@
+{# empty Twig template #}
+
+
+<div class="col-md-6">
+
+    <div class="panel panel-default">
+        <div class="panel-heading">Permisos generales</div>
+        <div class="panel-body"><div class="input-group input-group-sm">
+                <span class="input-group-addon">Rol ID</span>
+                <input required="" name="role" type="number" readonly="" class="form-control">
+            </div>
+            <div class="input-group input-group-sm">
+                <span class="input-group-addon">Nombre de la tabla</span>
+                <select required="" name="tabla" type="text" class="form-control">
+                    {{render(controller('AcmeSFSBundle:Schema:fieldAllEntityOption'))}}
+                </select>
+            </div>
+            <hr>
+            <div class="input-group input-group-sm">
+                <span class="input-group-addon">Permiso de lectura</span>
+                <select required="" name="lectura" class="form-control">
+                    <option value="true">Permitir</option>
+                    <option value="false">Denegar</option>
+                </select>
+            </div>
+            <div class="input-group input-group-sm">
+                <span class="input-group-addon">Permiso de edición</span>
+                <select required="" name="escritura" class="form-control">
+                    <option value="true">Permitir</option>
+                    <option value="false">Denegar</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-6">
+    <div class="panel panel-default">
+        <div class="panel-heading">Permisos secundarios</div>
+        <div class="panel-body">
+            <div class="input-group input-group-sm">
+                <span class="input-group-addon">Permiso para crear</span>
+                <select required="" name="crear" class="form-control">
+                    <option value="true">Permitir</option>
+                    <option value="false">Denegar</option>
+                </select>
+            </div>
+            <div class="input-group input-group-sm">
+                <span class="input-group-addon">Permiso para modificar</span>
+                <select required="" name="modificar" class="form-control">
+                    <option value="true">Permitir</option>
+                    <option value="false">Denegar</option>
+                </select>
+            </div>
+            <div class="input-group input-group-sm">
+                <span class="input-group-addon">Permiso para eliminar</span>
+                <select required="" name="eliminar" class="form-control">
+                    <option value="true">Permitir</option>
+                    <option value="false">Denegar</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>

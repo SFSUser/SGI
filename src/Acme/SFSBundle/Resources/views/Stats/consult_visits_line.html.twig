@@ -1,0 +1,145 @@
+
+<script type="text/javascript">
+    function hideShow(id) {
+        var element = document.getElementById(id);
+        var state = element.style.display;
+        //hideAll();
+        if (state == "block") {
+            element.style.display = "none";
+        } else {
+            element.style.display = "block";
+        }
+    }
+</script>
+
+<script type="text/javascript">
+
+    google.load("visualization", "1", {packages: ["corechart"]});
+    google.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        var data = new google.visualization.DataTable();
+
+<!-- Create the data table -->
+        data.addColumn('string', 'Dia');
+        data.addColumn('number', 'Vista de paginas');
+        data.addColumn('number', 'Vistantes unicos');
+        data.addColumn('number', 'Visitantes');
+
+<!-- Fill the chart with the data pulled from Analtyics. Each row matches the order setup by the columns: day then pageviews -->
+        data.addRows({{values|json_encode()|raw}});
+
+        var chart = new google.visualization.AreaChart(document.getElementById('visits_line'));
+        chart.draw(data, {width: "100%", height: 300, title: '{{time_back}}',
+            colors: ['#058dc7', '#e6f4fa'],
+            areaOpacity: 0.1,
+            hAxis: {textPosition: 'in', showTextEvery: 5, slantedText: false, textStyle: {color: '#058dc7', fontSize: 10}},
+            pointSize: 5,
+            legend: 'none',
+            chartArea: {left: 0, top: 30, width: "100%", height: 300}
+        });
+    }
+</script>
+
+<script type='text/javascript'>
+    google.load('visualization', '1', {packages: ['table']});
+    google.setOnLoadCallback(drawTable);
+    function drawTable() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Mes');
+        data.addColumn('string', 'Visitantes');
+        data.addColumn('string', 'Nuevas visitas');
+        data.addColumn('string', 'Vistas de paginas');
+        data.addColumn('string', 'Paginas vistas');
+        data.addColumn('string', 'Prom. Tiempo / Pagina');
+        data.addColumn('string', 'Prom. Duracion visitas');
+        data.addColumn('string', '% Rebote');
+        data.addColumn('string', '% Salidas');
+        data.addColumn('string', '% Nuevas visitas');
+        //types: booelan, number, string
+        data.addRows({{values_1|json_encode()|raw}});
+
+        var table = new google.visualization.Table(document.getElementById('table_visits_line'));
+        table.draw(data, {showRowNumber: true});
+    }
+</script>
+
+<script type='text/javascript'>
+    google.load('visualization', '1', {packages: ['table']});
+    google.setOnLoadCallback(drawTable);
+    function drawTable() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Palabra clave');
+        data.addColumn('string', 'Visitantes');
+        data.addColumn('string', 'Nuevas visitas');
+        data.addColumn('string', 'Vistas de paginas');
+        data.addColumn('string', 'Paginas vistas');
+        data.addColumn('string', 'Prom. Tiempo / Pagina');
+        data.addColumn('string', 'Prom. Duracion visitas');
+        data.addColumn('string', '% Rebote');
+        data.addColumn('string', '% Salidas');
+        data.addColumn('string', '% Nuevas visitas');
+        //types: booelan, number, string
+        data.addRows({{values_2|json_encode()|raw}});
+
+        var table = new google.visualization.Table(document.getElementById('table_visits_line1'));
+        table.draw(data, {showRowNumber: true});
+    }
+</script>
+
+
+<script type='text/javascript'>
+    google.load('visualization', '1', {packages: ['table']});
+    google.setOnLoadCallback(drawTable);
+    function drawTable() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Referencias');
+        data.addColumn('string', 'Visitantes');
+        data.addColumn('string', 'Nuevas visitas');
+        data.addColumn('string', 'Vistas de paginas');
+        data.addColumn('string', 'Paginas vistas');
+        data.addColumn('string', 'Prom. Tiempo / Pagina');
+        data.addColumn('string', 'Prom. Duracion visitas');
+        data.addColumn('string', '% Rebote');
+        data.addColumn('string', '% Salidas');
+        data.addColumn('string', '% Nuevas visitas');
+        //types: booelan, number, string
+        data.addRows({{values_3|json_encode()|raw}});
+
+        var table = new google.visualization.Table(document.getElementById('table_visits_line2'));
+        table.draw(data, {showRowNumber: true});
+    }
+</script>
+
+<script type='text/javascript'>
+    google.load('visualization', '1', {packages: ['table']});
+    google.setOnLoadCallback(drawTable);
+    function drawTable() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'URL');
+        data.addColumn('string', 'Visitantes');
+        data.addColumn('string', 'Nuevas visitas');
+        data.addColumn('string', 'Vistas de paginas');
+        data.addColumn('string', 'Paginas vistas');
+        data.addColumn('string', 'Prom. Tiempo / Pagina');
+        data.addColumn('string', 'Prom. Duracion visitas');
+        data.addColumn('string', '% Rebote');
+        data.addColumn('string', '% Salidas');
+        data.addColumn('string', '% Nuevas visitas');
+        //types: booelan, number, string
+        data.addRows({{values_4|json_encode()|raw}});
+
+        var table = new google.visualization.Table(document.getElementById('table_visits_line3'));
+        table.draw(data, {showRowNumber: true});
+    }
+</script>
+<div id="visits_line"></div>
+<div style="height: 20px"></div>
+<a href="javascript:hideShow('table_visits_line');"><div class="metric"><div class="sty-img-chart"></div>Estadisticas por mes</div></a>
+<br/><div style="display: none;" id="table_visits_line"></div>
+<a href="javascript:hideShow('table_visits_line1');"><div class="metric"><div class="sty-img-chart"></div>Estadisticas por palabra clave</div></a>
+<br/><div style="display: none;" id="table_visits_line1"></div>
+<a href="javascript:hideShow('table_visits_line2');"><div class="metric"><div class="sty-img-chart"></div>Estadisticas por referencia de sitios</div></a>
+<br/><div style="display: none;" id="table_visits_line2"></div>
+<a href="javascript:hideShow('table_visits_line3');"><div class="metric"><div class="sty-img-chart"></div>Estadisticas por URL directa</div></a>
+<br/><div style="display: none;" id="table_visits_line3"></div>

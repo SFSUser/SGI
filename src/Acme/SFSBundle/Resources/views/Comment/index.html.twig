@@ -1,0 +1,345 @@
+<link href="{{asset('bundles/acmesfs/plugins/sceditor/minified/themes/default.min.css')}}" rel="stylesheet" type="text/css"/>
+<script src="{{asset('bundles/acmesfs/plugins/sceditor/minified/jquery.sceditor.bbcode.min.js')}}" type="text/javascript"></script>
+
+<script>
+    /*bkLib.onDomLoaded(function() {
+     new nicEditor({buttonList:
+     [
+     'save',
+     'bold',
+     'italic',
+     'underline',
+     'left',
+     'center',
+     'right',
+     'justify',
+     'ol',
+     'ul'
+     ,'fontSize',
+     'fontFamily',
+     'fontFormat',
+     'indent',
+     'outdent',
+     'image',
+     'upload',
+     'link',
+     'unlink',
+     'forecolor',
+     'bgcolor',
+     'subscript',
+     'superscript',
+     'strikethrough',
+     'removeformat',
+     'hr',
+     //'xhtml'
+     
+     ]}).panelInstance('comment_box_f');
+     
+     
+     });*/
+    /*
+     * bold
+     italic
+     underline
+     strike
+     subscript
+     superscript
+     left
+     center
+     right
+     justify
+     font
+     size
+     color
+     removeformat
+     cut
+     This only works in IE because of security permissions. It’s disabled in other browsers.
+     copy
+     This only works in IE because of security permissions. It’s disabled in other browsers.
+     paste
+     This only works in IE because of security permissions. It’s disabled in other browsers.
+     pastetext
+     bulletlist
+     orderedlist
+     table
+     code
+     quote
+     horizontalrule
+     image
+     email
+     link
+     unlink
+     emoticon
+     youtube
+     date
+     time
+     ltr
+     rtl
+     print
+     maximize
+     source
+     */
+    $(document).ready(function() {
+        setCommentBox();
+        var params = getJavascriptParams();
+        if (typeof (params["comment"]) != 'undefined') {
+            showCommentTree(params["comment"], true);
+        }
+    });
+    function clearCommentBox() {
+        $('#comment_box').data("sceditor").val("");
+    }
+    function saveCommentBox() {
+        $('#comment_box').data("sceditor").updateOriginal();
+    }
+    function unsetCommentBox() {
+        $('#comment_box').data("sceditor").destroy();
+    }
+    function setCommentBox() {
+        $("#comment_box").sceditor({
+            emoticons: false,
+            plugins: "bbcode",
+            style: "{{asset('bundles/acmesfs/plugins/sceditor/minified/jquery.sceditor.default.min.css')}}",
+            toolbar: "bold,italic,underline|left,center,right,justify|font,size,color|cut,copy,paste|bulletlist,orderedlist|image,email,link,unlink,youtube|quote"
+        });
+    }
+
+    var current = -1;
+    var submitCommentFlag = false;
+    function submitComment() {
+        if (submitCommentFlag) {
+            return;
+        }
+        //nicEditors.findEditor('comment_box').saveContent();
+        saveCommentBox();
+        var txt = encodeURIComponent($('#comment_box').val());
+        var email = encodeURIComponent($('#correo').val());
+        var nombre = encodeURIComponent($('#usuario').val());
+
+        console.log("Mostrando: " + txt);
+
+        if (nombre == "") {
+            showMessage('Escriba primero su nombre.', 'submit_comment_message', 'warn', 'edit');
+            return;
+        }
+        if ((!contains(email, "@")) && (!contains(email, ".")) && (email != "")) {
+            showMessage('El correo ingresado no es correcto.', 'submit_comment_message', 'warn', 'edit');
+            return;
+        }
+        if (txt == "%3Cbr%3E" || txt == "") {
+            showMessage('Escriba el comentario primero.', 'submit_comment_message', 'warn', 'edit');
+            return;
+        }
+
+        //nicEditors.findEditor('comment_box').clear();
+        var params = "hilo={{thread}}&" + getDataParams();
+
+        submitCommentFlag = true;
+        setElementDisableState("#submit_comment_button", false);
+        //alert(data);
+        executeCall("{{path('add_comment')}}", params, function(data) {
+            console.log(data);
+            submitCommentFlag = false;
+            setElementDisableState("#submit_comment_button", true);
+            //alert(data);
+            switch (data["result"]) {
+                case -666:
+                    showMessage("Error en la respuesta del servidor.", "submit_comment_message", "error", "");
+                    break;
+                case 1:
+                    showMessage("Se ha publicado el comentario..", "submit_comment_message", "info", "edit");
+                    attachComment(data["id"], data["respuesta"]);
+                    clearCommentBox();
+                    break;
+            }
+        });
+    }
+
+    function showCommentTree(id, paint) {
+        if (paint) {
+            $("#comment_" + id).children(".comment-box:first").attr("style", "background-color:#FFFEEC");
+            $("#comment_" + id).goTo();
+        }
+        $("#comment_" + id).parent().slideDown();
+        var parent = $("#comment_" + id).parent().parent().parent();
+        var parent_id = parent.attr("id");
+        if (parent_id == null) {
+            return;
+        }
+        parent_id = parent_id.replace("comment_", "");
+        showCommentTree(parent_id, false);
+    }
+
+    function attachComment(id, respuesta) {
+        executeCall("{{path('get_comment')}}", "id=" + id, function(data) {
+            //alert(data);
+            var element = document.createElement("div");
+            element.innerHTML = data;
+            element.setAttribute("style", "display:none;");
+            $("#response_container_" + current).append(element);
+            addElement(element);
+            $("#response_container_" + respuesta).slideDown(1000);
+
+            //setNumElementInner("#comment_responses_count_" + respuesta, 1);
+            setNumElementInner("#total_comments", 1);
+        });
+    }
+    function attachAntComment(id, parent_id) {
+        $("#comment_show_responses_" + id).children("a:first").attr("href", "");
+        $("#comment_show_responses_" + parent_id).find("a").html("Cargando comentarios...");
+        executeCall("{{path('get_comment_ant')}}", "id=" + id, function(data) {
+            //alert(data);
+            var element = document.createElement("div");
+            element.innerHTML = data;
+            element.setAttribute("style", "display:none;");
+            
+            var parent_to_append = $("#comment_" + id).parent(); 
+            $("#response_container_" + parent_id).prepend(element);
+            addElement(element);
+            $("#comment_show_responses_" + parent_id).slideUp(1000);
+            //setNumElementInner("#comment_responses_count_" + respuesta, 1);
+            setNumElementInner("#total_comments", 1);
+        });
+    }
+    function responseComment(id) {
+        current = id;
+        $("#comment_bar").appendTo($("#comment_container_" + current));
+        $("#respuesta").val(current);
+        saveCommentBox();
+        unsetCommentBox();
+        setCommentBox();
+        //$('#comment_box').data("sceditor").width("400px");
+        //$('#comment_box').data("sceditor").width("100%");
+    }
+    function citeComment(name, comment_id) {
+        //$(".nicEdit-main:first").html($(".nicEdit-main:first").html() + " #" + name + " ");
+        var id = $("#comment_" + comment_id).attr("reply_comment");
+        responseComment(id);
+        var cite_text = " #" + name + " ";
+        $('#comment_box').data("sceditor").insertText(cite_text);
+    }
+    function removeComment(id) {
+        executeCall("{{path('remove_comment')}}", "id=" + id, function(data) {
+            //alert(data);
+            switch (data["result"]) {
+                case -666:
+                    showMessage("Error en la respuesta del servidor.", "submit_comment_message", "error", "");
+                    break;
+                case 1:
+                    if ($('.comment-bar', $("#comment_" + id)).length > 0) {
+                        responseComment(-1);
+                    }
+                    removeElement($("#comment_" + id));
+
+                    //setNumElementInner("#comment_responses_count_" + getAjaxParsedValue(data, "respuesta"), -1);
+                    setNumElementInner("#total_comments", -1);
+                    break;
+            }
+        });
+    }
+    function commentVote(vote, id, element) {
+        executeCall("{{path('vote_comment')}}", "id=" + id + "&vote=" + vote, function(data) {
+            //alert(data);
+            switch (data["result"]) {
+                case -666:
+                    showMessage("Error en la respuesta del servidor.", "submit_comment_message", "error", "");
+                    break;
+                case 1:
+                    if (vote > 0) {
+                        setNumElementInner("#comment_vote_p_" + id, vote);
+                        getSign("#comment_vote_p_" + id);
+                    } else {
+                        setNumElementInner("#comment_vote_n_" + id, vote);
+                        getSign("#comment_vote_n_" + id);
+                    }
+                    setNumElementInner("#comment_vote_" + id, vote);
+                    getSign("#comment_vote_" + id);
+                    paintSignElement("#comment_vote_" + id);
+                    $(element).addClass("hover");
+                    break;
+            }
+        });
+    }
+    function showComment(id) {
+        $("#response_container_" + id).slideDown()(1000);
+    }
+    function showComments(id) {
+        //$("#response_container_" + id).slideToggle(1000);
+    }
+</script>
+<style type="text/css">
+    .comment-box{
+        border-radius: 0 10px 10px 0;
+        border-color: #a9a9a9;
+        border-style: dashed;
+        border-width: 1px;
+        margin-bottom: 5px;
+        border-left-style: solid;
+        border-left-color: #DDDDDD;
+        border-left-width: 3px;
+        background-color: white;
+    }
+    .actions-buttons{
+        display: none;
+    }
+    .comment-box:hover{
+        background-color:#F8F8F8;
+    }
+    .comment-box:hover .actions-buttons{
+        display: block;
+    }
+    .comment-show-replies{
+        border-top-style: dashed;
+        border-top-width: 1px;
+        border-color: #DDDDDD;
+    }
+</style>
+<div>
+    <div class="sty-box-text-center sty-box-padding-20">
+        <span class="sty-label-blue sty-font-30">Comentarios (<span id="total_comments">{{total_comments}}</span>)</span>
+    </div>
+    <div class="comment-show-replies"></div>
+    <div id="response_container_-1">
+{% for comment in responses %}
+   {{include('AcmeSFSBundle:Comment:comment.html.twig',comment) }}
+{% endfor %}
+    </div>
+    <div class="sty-box-text-center sty-box-padding-20">
+        <a href="javascript:responseComment(-1);" class="sty-label-blue sty-font-30">Comentar</a>
+    </div>
+    <div id="comment_container_-1">
+        <div id="comment_bar" class="comment-bar">
+            <div id="submit_comment_message"></div>
+            <div class="sty-box-dotted sty-box-radius-10" style="background-color: #FAFFFF;">
+                <div class="sty-box-padding-10">
+                    <table width="100%">
+                        <tr style="display: block;">
+                            <td width="200px;"><span class="sty-label-blue">*Escriba su nombre: </span></td>
+                            <td><input class="input-text-radius" type="text" id="usuario" name="usuario" placeholder="Escriba su nombre" value="{{(admin) ? "Administrador" : user}}"/></td>
+                        </tr>
+                        <tr style="display: block;">
+                            <td width="200px;"><span class="sty-label-blue">(Opcional) Correo: </span></td>
+                            <td><input class="input-text-radius" type="email" id="correo" name="correo" placeholder="Escriba su correo" value="{{email}}"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span class="sty-label-blue">*Comentario:</span></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div class="sty-label-black">
+                                    <textarea style="width: 100%; height: 250px;" id="comment_box" name="contenido"></textarea>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <input type="hidden" name="mode" value="create"/>
+                    <input type="hidden" name="modo" value="{{admin ? "admin" : "user"}}"/>
+                    <input type="hidden" name="hilo" value="{{thread}}"/>
+                    <input id="respuesta" type="hidden" name="respuesta" value="-1"/>
+                    <button id="submit_comment_button" class="button" onclick="submitComment()"><img width="14px" height="14px" align="top" src="{{asset('bundles/acmesfs/img_icons/acept.gif')}}"/> Comentar</button>
+                    <button class="button" onclick="responseComment(-1)"><img width="14px" height="14px" align="top" src="{{asset('bundles/acmesfs/img_icons/forum.png')}}"/> Comentar tema</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

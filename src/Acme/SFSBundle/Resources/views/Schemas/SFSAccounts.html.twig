@@ -1,0 +1,62 @@
+{# empty Twig template #}
+<div class="sty-box-overflow-auto">
+    <div class="col-md-6">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Usuario</div>
+            <div class="panel-body">
+                <center>
+
+                    {{render(controller('AcmeSFSBundle:Schema:fieldImage',{name: 'avatar'}))}}
+
+                </center>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-addon">Nombre de usuario</span>
+                    <input required="" name="user" type="text" class="form-control">
+                </div>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-addon">E-Mail</span>
+                    <input required="" name="email" type="email" class="form-control" placeholder="Digite el número del documento">
+                </div>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-addon">Contraseña</span>
+                    <input required="" name="password" type="password" class="form-control" placeholder="Digite el número del documento">
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">Cuenta de usuario</div>
+            <div class="panel-body">
+                {#<div class="input-group input-group-sm">
+                    <span class="input-group-addon">Nivel de acceso</span>
+                    <select required="" name="roling" class="form-control">
+                        <option selected="" value="ROLE_ADMIN">Administrador</option>
+                        <option value="ROLE_USER">Usuario</option>
+                    </select>
+                </div>#}
+                <div class="input-group input-group-sm">
+                    <span class="input-group-addon">Creado el</span>
+                    <input name="created" type="date" class="form-control">
+                </div>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-addon">Último acceso</span>
+                    <input name="last_access" type="date" class="form-control">
+                </div>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-addon">Fecha de expiración</span>
+                    <input name="expiration" type="date" class="form-control">
+                </div>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-addon">Estado de la cuenta</span>
+                    <select required="" name="account_status" class="form-control">
+                        <option selected="" value="1">Activa</option>
+                        <option value="0">Desactivada</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

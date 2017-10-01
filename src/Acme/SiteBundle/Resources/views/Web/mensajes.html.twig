@@ -1,0 +1,10 @@
+{# empty Twig template #}
+{% extends template_parent %}
+{% block title %}
+    Mensajes
+{% endblock %}
+{% block body %}
+    <div style="min-height: 800px;margin: 20px 10px 0 10px;">
+        {% block component %} {{ parent() }}{% endblock %}
+    </div>
+{% endblock %}

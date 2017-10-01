@@ -1,0 +1,54 @@
+
+
+<script type='text/javascript'>
+    google.load('visualization', '1', {'packages': ['geochart']});
+    google.setOnLoadCallback(drawRegionsMap);
+
+    function drawRegionsMap() {
+        var data = google.visualization.arrayToDataTable(JSON.parse('{{values|json_encode()|raw}}'));
+        var options = {width: "100%"};
+        var chart = new google.visualization.GeoChart(document.getElementById('country_geo'));
+        chart.draw(data, options);
+    };
+</script>
+<script type='text/javascript'>
+    google.load('visualization', '1', {packages:['table']});
+    google.setOnLoadCallback(drawTable);
+    function drawTable() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Pais');
+        data.addColumn('string', 'Visitantes');
+        //types: booelan, number, string
+        data.addRows(JSON.parse('{{values|json_encode()|raw}}'));
+
+        var table = new google.visualization.Table(document.getElementById('table_country_geo'));
+        table.draw(data, {showRowNumber: true});
+    }
+</script>
+
+<script type='text/javascript'>
+    google.load('visualization', '1', {packages:['table']});
+    google.setOnLoadCallback(drawTable);
+    function drawTable() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Pais');
+        data.addColumn('string', 'Region');
+        data.addColumn('number', 'Visitantes');
+        //types: booelan, number, string
+        data.addRows({{values_1|json_encode()|raw}});
+
+        var table = new google.visualization.Table(document.getElementById('table2_country_geo'));
+        table.draw(data, {showRowNumber: true});
+    }
+</script>
+
+<table width="100%">
+    <tr>
+        <td colspan="2"><div id="country_geo"></div></td>
+    </tr>
+    <tr valign="top">
+        <td width="50%"><div id="table2_country_geo"></div></td>
+        <td width="50%"><div id="table_country_geo"></div></td>
+    </tr>
+</table>
+<div style="height: 20px"></div>

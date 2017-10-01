@@ -1,0 +1,16 @@
+{# empty Twig template #}
+{% for x in data %}
+    <div class="media " style="border-bottom: gainsboro;border-bottom-width: 1px;border-bottom-style: solid; background-image: linear-gradient(to right, transparent, white), url({{x.imagenes_first.large_thumbnail}});background-size: cover;background-position: center;">
+        {#<a class="pull-left" href="/noticias/13">
+            <img width="90px" class="media-object" src="{{x.imagenes_first.big_square}}" alt="La Diócesis de Neiva despidió al Padre Marco Antonio López Alarcón">
+        </a>#}
+        <div class="media-body  sty-box-overflow-auto ">
+            <div class="www-gallery-text sty-box-overflow-auto col-md-8">
+                <h3 class="sty-font-20">{{x.titulo}}</h3>
+                <p>{{x.contenido|striptags|slice(0,200)|raw}}</p>
+                <a class="btn btn-danger pull-right" href="{{path('acerca_url', {id: x.id})}}">Conocer más...</a>
+            </div>
+        </div>
+        <div style="height: 150px;"></div>
+    </div>
+{% endfor %}

@@ -1,0 +1,556 @@
+{# empty Twig template #}
+<div id="uploader_space_{{identifier}}">
+    <div class="uploader-title-name" style="background-color: #00afea;padding: 5px;border-radius: 5px;margin-top: 5px;">
+        <span class="sty-font-15 sty-label-white">Archivos adjuntos para '<i>{{identifier}}</i>'</span>
+    </div>
+        
+    <div style="display: none;" id="loading_compress" class="sty-box-padding-10 sty-box-dotted sty-box-radius-10 sty-box-margin-5">
+        <img src="{{asset('/bundles/acmesfs/img/loading_mini.gif')}}"/>
+        <span class="sty-font-20">Comprimiendo archivos...</span>
+    </div>
+    <div style="display: none;" id="download_compress" class="sty-box-padding-10 sty-box-dotted sty-box-radius-10 sty-box-margin-5">
+        <a class="btn btn-success" id="link_zip_download" href="#" download="{{identifier}}.zip">Descargar Zip</a>
+        <span class="sty-font-20">Los archivos se han comprimido</span>
+    </div>
+    <div style="width: 100%;background-color: white;" class="sty-box-padding-5">
+    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_MANAGER') or remove_secure  %}
+        <button class="btn btn-default" onclick="UploaderInterface_{{identifier}}.prepareNewUploader()">Subir archivos...</button>
+    {% endif %}    
+    {% if not compact %}
+        <div class="btn-group">
+            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Seleccionar<span class="caret"></span></button>
+            
+            <ul class="dropdown-menu" role="menu">
+                <li><a onclick="UploaderInterface_{{identifier}}.setSelectAllUploads(true)">Marcar todo</a></li>
+                <li><a onclick="UploaderInterface_{{identifier}}.setSelectAllUploads(false)">Desmarcar todo</a></li>
+                <li><a onclick="UploaderInterface_{{identifier}}.setSelectNewUpload()">Marcar sin descargar</a></li>
+            </ul>
+        </div>
+            
+        {#<button class="btn btn-info" >Marcar todo</button>
+        <button class="btn btn-info">Desmarcar todo</button>#}
+        <button id="download_zip_button" class="btn btn-warning" onclick="UploaderInterface_{{identifier}}.downloadZip()">Descargar Zip</button>
+    {% endif %}
+    
+    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_MANAGER') or remove_secure  %}
+        {% if not disable_delete %}
+            {% if not compact %}
+                <button class="btn btn-danger" onclick="UploaderInterface_{{identifier}}.removeSelected()">Eliminar selección</button>
+            {% endif %}
+            <button class="btn btn-danger" onclick="UploaderInterface_{{identifier}}.removeIdentifier('{{identifier}}')">Vaciar</button>
+        {% endif %}
+       
+        <div style="display:none;">
+            <div id="uploader_file_template">
+                <div class="file-item">
+                    <progress></progress>
+                    <b class="filename sty-font-20"> (Sin seleccionar)</b>: <span class="sty-font-20 estado">Subiendo archivo...</span>
+                </div>
+            </div>
+        </div>
+        <div id="message_list"></div>
+    {% endif%}
+        {% if not compact %}
+        <form class="find-box" style="max-width: 400px;margin-top:10px;">
+            <div class="input-group">
+                <input placeholder="Buscar archivos por el nombre..." name="find" type="text" value="" class="form-control">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">Buscar</button>
+                </span> 
+            </div>
+        </form>
+        {% endif %}
+        <div class="sty-font-median">
+            <span>Archivos en la lista: <b style="color:red;" id="item_count">0</b></span>
+        </div>
+        <hr class="featurette-divider">
+        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_MANAGER') or remove_secure  %}
+            <div class="sty-box-padding-5 sty-box-dotted sty-box-radius-10"><span class="sty-font-20 sty-label-blue-hover">Arrastrar archivos aquí</span></div>
+        {% endif %}
+        <div class="uploads-loading" style="display: none;">
+            <img src="{{asset('/bundles/acmesfs/img/loading_mini.gif')}}"/> <span class="sty-font-20">Cargando lista de archivos...</span>
+        </div>
+        <div class="uploads-file-list">
+            {#render(controller("AcmeSFSBundle:Uploader:get", {identifier: identifier}))#}
+        </div>
+    </div>
+</div>
+<style>
+    .file-item{
+        padding: 5px;
+        background-color: white;
+        overflow: auto;
+        border-bottom: solid;
+        border-bottom-color: gainsboro;
+        border-bottom-width: 1px;
+    }
+    .file-item:hover{
+        background-color: whitesmoke;
+    }
+    .file-item-new {
+        background-color: rgb(236, 245, 230);
+    }
+</style>
+<script>
+    
+    var UploaderInterface_{{identifier}} = {
+        data: new ItemCollection(),
+        identifier: '{{identifier}}',
+        space_object: $("#uploader_space_{{identifier}}"),
+        file_list: $("#uploader_space_{{identifier}}").find(".uploads-file-list"),
+        setInput: function(i) {
+            this.data.setInput(i);
+            this.data.loadInput();
+            this.data.saveInput();
+        },
+        prepare: function(){
+            var context = this;
+            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_MANAGER') or remove_secure  %}
+            $(this.space_object).on('dragover',
+                function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            );
+            $(this.space_object).on('dragenter',
+                function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            );
+            $(this.space_object).on('drop',
+                function(e){
+                    if(e.originalEvent.dataTransfer){
+                        if(e.originalEvent.dataTransfer.files.length) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            /*UPLOAD FILES HERE*/
+                            var drop_files = e.originalEvent.dataTransfer.files;
+                            for(var x in drop_files){
+                                x = drop_files[x];
+                                if (x.type === undefined || x.name === "item" || !x) {
+                                    console.log("File ignored");
+                                    return;
+                                }
+                                context.uploadFile(x);
+                            }
+                            //upload();
+                        }   
+                    }
+                }
+            );
+            {% endif %}
+        },
+        downloadZip: function(){
+            var context = this;
+            $(this.space_object).find("#loading_compress").show();
+            setElementDisableState($(this.space_object).find("#download_zip_button"), false);
+            var elements = [];
+            $(this.space_object).find("input:checked").each(function(){
+                elements.push($(this).val());
+            });
+            $.ajax({
+                url: '{{path('url_uploaderzip')}}',
+                data: {
+                    files: elements,
+                    identifier: this.identifier
+                },
+                success: function(r){
+                    $(context.space_object).find("#loading_compress").hide();
+                    setElementDisableState($(context.space_object).find("#download_zip_button"), true);
+                    //console.log(r);
+                    if(r.result){
+                        var enlace = $(context.space_object).find("#link_zip_download");
+                        $(context.space_object).find("#download_compress").show();
+                        $(enlace).attr("href", r.download_path);
+                        //$(enlace).click();
+                    }
+                },
+                error: function(){
+                    $(context.space_object).find("#loading_compress").hide();
+                    setElementDisableState($(context.space_object).find("#download_zip_button"), true);
+                }
+            });
+            console.log(elements);
+        },
+        setItemCount:function(){
+            var count = $(this.file_list).find(".file-item").size();
+            $(this.space_object).find("#item_count").html(count);
+        },
+        setSearch: function(){
+            var context = this;
+            var frm = $(this.space_object).find(".find-box");
+            $(frm).submit(function(e){
+               e.preventDefault();
+               var txt = $(frm).find("input").val().toLowerCase();
+               //$(frm).find("input").val("");
+               $(context.file_list).find(".file-item").each(function(){
+                   var keywords = $(this).attr("keywords").toLowerCase();
+                   //console.log(keywords);
+                   if(keywords.indexOf(txt) > -1){
+                       $(this).show();
+                   }else{
+                       $(this).hide();
+                   }
+               });
+               context.setItemCount();
+            });
+        },
+        markDownload: function(id){
+            var context = this;
+            $.ajax({
+                url: "{{path('url_uploadercounter')}}",
+                type: "POST",
+                data: {
+                    id: id
+                },
+                success: function(r) {
+                    var item = $(context.file_list).find("#uploaded_item_" + id);
+                    $(item).removeClass("file-item-new");
+                    console.log(item);
+                    console.log("FileItem downloaded: " + r.count);
+                }
+            });
+        },
+        loadByIdentifier: function() {
+            
+            var context = this;
+            $(context.space_object).find(".uploads-loading").show();
+            $.ajax({
+                url: '{{path('url_uploaderget')}}',
+                data: {
+                    identifier: context.identifier
+                },
+                success: function(r) {
+                    $(context.space_object).find(".uploads-loading").hide();
+                    console.log("Data received! - " + context.identifier);
+                    context.data.values = r.data;
+                    context.loadFromData();
+                }
+            });
+        },
+        setSelectNewUpload: function(){
+            $(this.file_list).find(".file-item").each(function(){
+                var input = $(this).find("input");
+                if($(this).hasClass("file-item-new")){
+                    $(input).prop('checked', true);
+                } else {
+                    $(input).prop('checked', false);
+                }
+            });
+        },
+        setSelectAllUploads: function(state) {
+            var els = $(this.file_list).find("input");
+            if (state) {
+                $(els).prop('checked', true);
+            } else {
+                $(els).prop('checked', false);
+            }
+        },
+        saveOnInput: function() {
+            this.data.saveInput();
+        },
+        removeSelected: function() {
+            if(!confirm('¿Confirmas que deseas eliminar los elementos seleccionados de la lista?')){
+                return;
+            }
+            var context = this;
+            $(this.file_list).find(".file-item").find("input:checked").each(function() {
+                context.removeUploadedFile($(this).attr("value"));
+            });
+        },
+        removeIdentifier: function(identifier) {
+            if(!confirm('¿Confirmas que deseas eliminar todos los elementos de la lista?')){
+                return;
+            }
+            var list = $(this.space_object).find(".uploads-file-list");
+            setElementDisableState(list, false);
+            this.data.clear();
+            $.ajax({
+                url: "{{path('url_uploaderremove')}}",
+                data: {
+                    identifier: identifier
+                },
+                success: function(e) {
+                    setElementDisableState(list, true);
+                    if (e.result > 0 || true) {
+                        //console.log(item);
+                        $(list).slideUp(function(){
+                            $(this).html("");
+                            $(this).show();
+                        });
+                    }
+                    console.log("Elementos eliminados: " + e.result + " de " + e.counted + " desde " + e.realpath);
+                }, error: function() {
+                    setElementDisableState(item, true);
+                }
+            });
+        },
+        removeUploadedFile: function(id) {
+            this.data.removeIndex(id);
+            var item = $(this.space_object).find("#uploaded_item_" + id);
+            setElementDisableState(item, false);
+            $.ajax({
+                url: "{{path('url_uploaderremove')}}",
+                data: {
+                    id: id
+                },
+                success: function(e) {
+                    if (e.result > 0) {
+                        item.fadeOut(function() {
+                            $(this).remove();
+                        });
+                    }
+                    setElementDisableState(item, true);
+                    console.log("Elementos eliminados: " + e.result + " de " + e.counted + " desde " + e.realpath);
+                }, error: function() {
+                    setElementDisableState(item, true);
+                }
+            });
+        },
+        loadFromData: function() {
+            try {
+                var data = this.data.getValues();
+                for (var x in data) {
+                    x = data[x];
+                    if (x === null)
+                        continue;
+                    this.appendItem(x);
+                }
+            } catch (x) {
+                console.log("Error al cargar desde input.");
+                console.log(x);
+            }
+        },
+        loadFromInput: function() {
+            if (this.input !== null) {
+                try {
+                    var data = this.data.getValues();
+                    for (var x in data) {
+                        x = data[x];
+                        if (x === null)
+                            continue;
+                        this.appendItem(x);
+                    }
+                } catch (x) {
+                    console.log("Error al cargar desde input.");
+                }
+            }
+        },
+        appendItem: function(data) {
+            this.data.addOn(data.id, data);
+            //console.log(data);
+            var copy = $(proccessTemplate("#uploader_template", data));
+            //console.log(data)
+            if(data.downloads < 1){
+               //console.log("Ok");
+               $(copy).addClass("file-item-new");
+            }
+            $(copy).hide();
+            var lst_id = $(copy).attr("id");
+            
+            //Revisar si ya existe en el listado.
+            if(this.file_list.has(lst_id).size() <= 0){
+                this.file_list.prepend(copy);
+                $(copy).slideDown();
+            }
+            this.saveOnInput();
+            this.setItemCount();
+            return copy;
+        },
+        uploadFile: function(file){
+            var context = this;
+            var up = new FileUploader();
+            up.identifier = context.identifier;
+            var upldr = $($(context.space_object).find("#uploader_file_template").html());
+
+            $(context.file_list).prepend(upldr);
+            up.setProgressBar($(upldr).find("progress"));
+            up.setOnPrepare(function(name) {
+                $(upldr).find(".filename").html(name);
+            });
+            up.setOnError(function(e) {
+                $(upldr).find(".estado").html("Error al cargar archivo.");
+                var cont_err = $(context.space_object).find("#message_list");
+                Utils.showBootstrapNotify(cont_err, "danger", "Error:", "No se pudo cargar algún archivo." );
+                console.log(e);
+            });
+            up.setOnLoad(function(e) {
+                e = e.uploaded_files;
+                if (e.length > 0) {
+                    last_response = e;
+                    id = e[0].id;
+
+                } else {
+                    return;
+                }
+
+                //Añade el elemento
+                var upl_field = context.appendItem(e[0]);
+                $(upl_field).addClass("file-item-recent");
+                $(upldr).remove();
+            });
+            up.uploadOne(file);
+            return false;
+        },
+        prepareNewUploader: function() {
+            var context = this;
+            var tmp = new FileUploader();
+            
+            tmp.setOnSelect(function(file){
+                context.uploadFile(file);
+            });
+            tmp.open();
+        },
+        download: function(file) {
+            window.open(file);
+            return;
+            var iframe = document.createElement("iframe");
+            iframe.src = file;
+            $(iframe).hide();
+            $(iframe).appendTo("body");
+        }
+    };
+
+    function FileUploader() {
+        this.urlUploader = "{{path('url_uploadfiles')}}";
+        this.targetOnLoad = null;
+        this.targetOnError = null;
+        this.targetOnPrepare = null;
+        this.targetOnSelect = null;
+        this.progressBar = null;
+        this.file_name = "";
+        this.name = "default";
+        this.identifier = "{{identifier}}";
+        this.input = input = document.createElement("input");
+        $(input).attr("multiple", "");
+        $(input).attr("type", "file");
+        $(input).css("visibility", "hidden");
+        $(input).appendTo("body");
+        this.setInput(input);
+    }
+    FileUploader.prototype.setProgressBar = function(evt) {
+        this.progressBar = evt;
+    };
+    FileUploader.prototype.open = function() {
+        $(this.input).click();
+    };
+    FileUploader.prototype.setOnError = function(evt) {
+        this.targetOnError = evt;
+    };
+    FileUploader.prototype.setOnLoad = function(evt) {
+        this.targetOnLoad = evt;
+    };
+    FileUploader.prototype.setOnPrepare = function(evt) {
+        this.targetOnPrepare = evt;
+    };
+    FileUploader.prototype.setOnSelect = function(evt) {
+        this.targetOnSelect = evt;
+    };
+    FileUploader.prototype.setInput = function(input) {
+        var context = this;
+        $(input).on('change', function(ev) {
+            var files = ev.target.files;
+            console.log(this);
+            for (var x in files) {
+                x = files[x];
+                if (x.type === undefined || x.name === "item" || !x) {
+                    console.log("File ignored");
+                    return;
+                }
+                console.log(x);
+                if(context.targetOnSelect !== null){
+                    if(context.targetOnSelect(x)){
+                        context.uploadOne(x);
+                    }
+                }else{
+                    context.uploadOne(x);
+                }
+            }
+        });
+    };
+    FileUploader.prototype.uploadOne = function(file) {
+
+
+        var context = this;
+
+        var fd = new FormData();
+        fd.append("file", file); // Append the file
+        fd.append("identifier", context.identifier); // Append the file
+
+        fd.append("name", context.name); // Append the file
+        var xhr = new XMLHttpRequest(); // Create the XHR (Cross-Domain XHR FTW!!!) Thank you sooooo much imgur.com
+        xhr.upload.onprogress = function(D) {
+            var porcentaje = D.loaded / D.total;
+            //$(context.labelDescription).html("Subiendo imagen [" + context.count + "/" + context.max + "]: " + file.name + " (" + Math.round(porcentaje * 100) + "%)");
+            if (context.progressBar !== null) {
+                $(context.progressBar).val(porcentaje);
+            }
+        }; //.closure(this);
+        xhr.open("POST", context.urlUploader); // Boooom!
+        xhr.onload = function() {
+            console.log("Se cargó un archivo");
+            //console.log(xhr.responseText);
+            $("#result").html(xhr.responseText);
+            var values = null;
+            try {
+                console.log(xhr.responseText);
+                values = JSON.parse(xhr.responseText);
+            } catch (ex) {
+                console.log(ex);
+            }
+            if (context.targetOnLoad !== null) {
+                context.targetOnLoad(values);
+            }
+            console.log(values);
+        };
+        xhr.onerror = function(e) {
+            console.log("Falló subir archivos!");
+            if (context.targetOnError !== null) {
+                context.targetOnError(e);
+                
+            }
+        };
+        last_file = file;
+        console.log("Uploading file: " + file.name);
+        if (context.targetOnPrepare !== null) {
+            context.targetOnPrepare(file.name);
+        }
+        xhr.send(fd);
+    };
+    
+</script>
+<script>
+    $(function() {
+        UploaderInterface_{{identifier}}.setSearch();
+        UploaderInterface_{{identifier}}.prepare();
+        UploaderInterface_{{identifier}}.setInput($("#{{input_id}}"));
+        UploaderInterface_{{identifier}}.loadFromInput();
+        {% if service %}
+        UploaderInterface_{{identifier}}.loadByIdentifier();
+        {% endif%}
+    });
+</script>
+
+<div style="display: none;" id="uploader_template">
+    <div keywords="{id} {original_name}" identifier="{identifier}" path="{download_path}" date="{date_formatted}" id="uploaded_item_{id}" class="file-item">
+        
+        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_MANAGER')  or remove_secure or not compact %}
+            <input type="checkbox" value="{id}" class="pull-left checkable"/>
+        {% endif %}
+        <img class="sty-box-margin-5 pull-left" src="http://cdn.webiconset.com/file-type-icons/images/icons/{extension}.png"/>
+        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_MANAGER')  or remove_secure %}
+            {% if not disable_delete %}
+                <button target="_blank" onclick="UploaderInterface_{{identifier}}.removeUploadedFile({id})" class="btn btn-danger pull-right sty-box-margin-left-5">Eliminar</button>
+            {% endif %}
+        {% endif %}
+        <a href="{download_path}" onclick="UploaderInterface_{{identifier}}.markDownload({id})" download="{original_name}"  class="btn btn-info pull-right">Descargar</a>
+        <div style="display: inline-block;margin-left: 10px;max-width: 300px;" class="pull-left">
+            <b class="sty-font-15 sty-label-blue">{original_name}</b><br>
+            {#<span><b>Identificador:</b> <i>{{identifier}}</i></span><br>#}
+            <span><b>Subido el:</b> {date}</span><br>
+            <span><b>Tamaño:</b> {size_formatted}</span><br>
+            <span><b>Descargas:</b> {downloads}</span>
+        </div>
+    </div>
+</div>

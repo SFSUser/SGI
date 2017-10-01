@@ -1,0 +1,148 @@
+<script type="text/javascript" src="https://www.google.com/jsapi" charset="utf-8"></script>
+<script type="text/javascript" src="{{asset('bundles/acmesfs/jquery/jquery-1.8.1.min.js')}}" charset="utf-8"></script>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link href="{{asset('bundles/acmesfs/plugins/ga/css/css.css')}}" rel="stylesheet" type="text/css"/>
+<link href="{{asset('bundles/acmesfs/plugins/ga/css/flags.css')}}" rel="stylesheet" type="text/css"/>
+<link href="{{asset('bundles/acmesfs/plugins/ga/js/js.js')}}" rel="stylesheet" type="text/css"/>
+<title>Estadísticas del sitio</title>
+<style type="text/css">
+    a{
+        text-decoration: none;
+    }
+</style>
+<script type="text/javascript">
+    google.load('visualization', '1', {'callback':'', 'packages':['corechart', 'geochart', 'table']})
+    $(function() {
+        //loadSection(0);
+    });
+
+    function loadSection(index) {
+        if (loading_stats)
+            return;
+        loading_stats = true;
+        //Limpiar todo:
+        $("#stats_container").html($("#loading_template").html());
+        $(".tag").removeClass("select");
+        $("#tag_" + index).addClass("select");
+        switch (index) {
+            case 0:
+                loadStats(["visits_line"]);
+                break;
+            case 1:
+                loadStats(["country_geo", "region_geo"]);
+                break;
+            case 2:
+                loadStats(["movil_chart", "so_chart", "browsers_chart"]);
+                break;
+        }
+    }
+
+    var loading_stats = false;
+    function loadStats(stats_list) {
+
+        for (var stat in stats_list) {
+            stat = stats_list[stat];
+            console.log("Cargando estadística: " + stat);
+            $.ajax({
+                "url": "{{path('get_stats')}}",
+                "data": "type=" + stat,
+                "method": "POST",
+                "success": function(data) {
+                    $("#stats_container").append(data)
+                    //var div = document.createElement("div");
+                    //div.innerHTML = data;
+                    //document.getElementById("stats_container").appendChild(data);
+                    //console.log(div);
+                    loading_stats = false;
+                    console.log("Finaizado: " + stat);
+                },
+                "error": function(data) {
+                    loading_stats = false;
+                    $("#stats_container").html($("#error_template").html());
+                }
+            });
+        }
+    }
+    function checkBrowser() {
+        if (!(navigator.userAgent.toLowerCase().indexOf('chrome') > -1)) {
+            lock();
+        }
+    }
+    window.onload = checkBrowser;
+    function lock() {
+        document.getElementById('ga_locker').style.display = 'block';
+    }
+    function unLock() {
+        document.getElementById('ga_locker').style.display = 'none';
+    }
+</script>
+<div onclick="unLock()" style="display: none;" id="ga_locker" class="locker">
+    <div class="locker-loader">
+        <table width="100%">
+            <tr>
+                <td colspan="2"><span style="font-size: 30px;" class="sty-label-blue">Problema de incompatiblidad</span></td>
+            </tr>
+            <tr>
+                <td><img src="{{asset('bundles/acmesfs/plugins/ga/img/warn.png')}}"/></td>
+                <td>
+                    <span class="sty-label-gray">
+                        El navegador que esta usando no es compatible con esta funcion, le recomendamos usar el navegador Google Chrome. Si no lo tiene instalado puede ir al sitio de descarga <a class="sty-label-blue" href="https://www.google.com/intl/es/chrome/browser/?hl=es">haciendo click aqui.</a><br/>
+                        Sin embargo, puede continuar haciendo click en ignorar.
+                    </span>
+                    <div style="float: right;"><a class="sty-label-blue" href="javascript:unLock()"><img src="{{asset('bundles/acmesfs/plugins/ga/img/button_ignore.fw.png')}}"/></a></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="sty-bar-main">
+    <div style="float: right;margin-top: 20px;"><a target="_blank" href="http://www.google.com/analytics/" class="sty-label-blue"><img src="{{asset('bundles/acmesfs/plugins/ga/img/google_analytics.png')}}"/></a></div>
+    <table>
+        <tr>
+            <td><img src="{{asset('bundles/acmesfs/plugins/ga/img/analytics_simple.png')}}" align="middle"></td>
+            <td><span class="sty-label-gray"> Estadisticas de visitas y trafico del sitio web</span></td>
+        </tr>
+    </table>            
+</div>
+<table width="100%">
+    <tr valign="top">
+        <td width="200px">
+            <a href="?type=stats">
+                <div id="tag_0" class="tag {{tags.stats}}">
+                    <div><img src="{{asset('bundles/acmesfs/plugins/ga/img/analytics.png')}}"/></div>
+                    Estadisticas
+                </div>
+            </a>
+            <a href="?type=geo">
+                <div id="tag_1" class="tag {{tags.geo}}">
+                    <div><img src="{{asset('bundles/acmesfs/plugins/ga/img/geo.png')}}"/></div>
+                    Paises y regiones
+                </div>
+            </a>
+            <a href="?type=devices">
+                <div id="tag_2" class="tag {{tags.devices}}">
+                    <div><img src="{{asset('bundles/acmesfs/plugins/ga/img/tracking.png')}}"/></div>
+                    Navegador y S.O.
+                </div>
+            </a>
+        </td>
+        <td>
+            <div id="stats_container">
+                {% for include in includes %}
+                    {{include(include.template, include.values) }}
+                {% endfor %}
+            </div>
+        </td>
+    <div style="display: none;">
+        <div id="loading_template">
+            <img src="{{asset('bundles/acmesfs/img/loading.gif')}}" align="middle"/>
+            <span class="sty-label-blue" style="font-size: 20px;">Cargando estadísticas...</span>
+        </div>
+        <div id="error_template">
+            <img src="{{asset('bundles/acmesfs/plugins/ga/img/warn.png')}}" align="middle"/>
+            <span class="sty-label-blue" style="font-size: 20px;">Ocurrió un error al cargar.</span>
+        </div>
+    </div>
+</tr>
+</table>

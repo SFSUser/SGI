@@ -1,0 +1,21 @@
+{# empty Twig template #}
+
+<div class="sty-box-overflow-auto">
+    <div class="col-md-6">
+        <div class="input-group input-group-sm">
+            <span class="input-group-addon">Titulo</span>
+            <input placeholder="Titulo del servicio" required="" name="titulo" type="text" class="form-control">
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="input-group input-group-sm">
+            <span class="input-group-addon">Categorias</span>
+            <select required="" name="categoria" class="form-control">
+                {{render(controller('AcmeSFSBundle:Schema:fieldOption',{entity: 'AcmeWebBundle:WebPortafolio', label: 'titulo'}))}}
+            </select>
+        </div>
+    </div>
+</div>
+<input id="WebServicios_keywords" name="keywords" type="hidden" class="form-control">
+<input id="WebServicios_contenido" name="contenido" type="hidden" class="form-control">
+<input id="WebServicios_imagenes" name="imagenes" type="hidden" class="form-control">

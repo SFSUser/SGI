@@ -1,0 +1,26 @@
+{# empty Twig template #}
+<div class="sty-box-margin-10">
+    <center>
+        <img class="input-soft" id="avatar_prev_{{name}}" style="max-width: 300px;" src="http://i.imgur.com/xxvqqW7s.jpg">
+        <br>
+        <button id="avatar_button_{{name}}" class="button">Cargar imagen</button>
+    </center>
+</div>
+<script>
+    var ant_value = $("#{{name}}").val();
+    if(ant_value === null || ant_value === ""){
+        ant_value = "{{asset('/bundles/acmesfs/img/no_imagen.jpg')}}";
+    }
+    $("#{{name}}").val(ant_value);
+    $("#avatar_prev_{{name}}").attr('src', ant_value);
+    $("#avatar_prev_{{name}}, #avatar_button_{{name}}").click(function() {
+        $("#avatar_prev_{{name}}").attr('src', '{{asset('/bundles/acmesfs/img/loading.gif')}}');
+        ImgurUploader.set(null, null, function(data) {
+            console.log(data);
+            var image = data.upload.links.original;
+            $("#{{name}}").val(image);
+            $("#avatar_prev_{{name}}").attr('src', image);
+        });
+        ImgurUploader.upload();
+    });
+</script>

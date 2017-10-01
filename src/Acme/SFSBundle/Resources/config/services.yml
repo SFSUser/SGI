@@ -1,0 +1,13 @@
+#services.ymlads3asdas2d
+parameters:
+    acme_page.dynamic_doctrine_connection.class: Acme\SFSBundle\DynamicDoctrineConnection
+
+services:
+    acme_page.dynamic_doctrine_connection:
+        class:      %acme_page.dynamic_doctrine_connection.class%
+        arguments:  [@request, @doctrine]
+        scope:      request
+        #calls:
+        #    - [setContainer, [@request, @doctrine]]
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }

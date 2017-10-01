@@ -1,0 +1,131 @@
+<style>
+    .contact-title{
+        white-space: nowrap;
+        color: black;
+        cursor: pointer;
+        padding: 5px 10px 5px 10px;
+        border-bottom-width: 1px;
+        border-bottom-style: dashed;
+        border-bottom-color: #DDD;
+    }
+    .contact-title:hover{
+        background-color: #E5FFD9;
+    }
+    .contact-title-new{
+        background-color: #A6D1D7;
+    }
+    .contact-content{
+        margin: 5px;
+        border-width: 1px;
+        border-color: #DDD;
+        border-style: solid;
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    #sections_container{
+        min-height: 800px;
+    }
+    .contact-col{
+        display: table-cell;
+        overflow: hidden;
+    }
+</style>
+<script>
+    function getListPage(p) {
+        ContactList.current_paginator_page = p;
+        ContactList.getList();
+    }
+    function toggleContent(element) {
+        $(".contact-container").slideUp();
+        $(element).parent().children("div:last").slideToggle();
+    }
+    function toggleMSGView(s) {
+        //var animate = {width: 'toggle'};
+        $("#message_box, #list_msg").hide();
+        if (s) {
+            $("#message_box").slideDown();
+        } else {
+            ContactList.getList();
+            $("#list_msg").slideDown();
+        }
+        //$("#message_box").animate(animate);
+        //$("#list_msg").animate(animate);
+    }
+    function showContact(id) {
+        setElementDisableState($("#contact_message_" + id), false);
+        $.ajax({
+            url: "{{path('get_contact')}}",
+            data: {
+                id: id
+            },
+            success: function(html) {
+                setElementDisableState($("#contact_message_" + id), true);
+                $("#contact_message_" + id).removeClass("contact-title-new");
+                $("#message_content").html(html);
+                toggleMSGView(true);
+                $("#message_titulo").val("Respuesta: " + $("#contact_message_" + id).attr("titulo"));
+                $("#message_destinatario").val($("#message_content").find(".correo:first").html());
+            },
+            error: function() {
+                setElementDisableState($("#contact_message_" + id), true);
+            }
+        });
+    }
+    var ContactList = {
+        state: 7,
+        current_paginator_page: 1,
+        getList: function() {
+            $("#list_loader").show();
+            $("#list_content").html("");
+            $.ajax({
+                url: '{{path('get_contactlist')}}',
+                type: "POST",
+                data: {
+                    state: this.state,
+                    paginator_page: this.current_paginator_page,
+                },
+                success: function(d) {
+                    $("#list_loader").hide();
+                    $("#list_content").html(d);
+                },
+                error: function(e) {
+                    console.log(e);
+                    $("#list_loader").hide();
+                }
+            });
+        },
+        filterState: function(state, el) {
+            $(el).parent().find(".active").removeClass("active");
+            $(el).addClass("active");
+            this.state = state;
+            this.getList();
+        }
+    };
+    $(function() {
+        ContactList.getList();
+    });
+
+</script>
+<div class="sty-box-text-center">
+    <div class="btn-group" role="group" aria-label="...">
+        <button onclick="ContactList.filterState(7, this)" type="button" class="btn btn-default active">Todos los mensajes</button>
+        <button onclick="ContactList.filterState(0, this)" type="button" class="btn btn-success">Sin leer</button>
+        <button onclick="ContactList.filterState(1, this)" type="button" class="btn btn-default">Leídos</button>
+        <button onclick="ContactList.filterState(2, this)" type="button" class="btn btn-info">Respondidos</button>
+        <button onclick="ContactList.filterState(3, this)" type="button" class="btn btn-danger">Descartados</button>
+    </div>
+</div>
+<hr>
+<div class="sheet-art sty-box-padding-10" id="list_msg">
+    <div style="display:none;" id="list_loader">
+        <img src="{{asset('/bundles/acmesfs/img/loading_mini.gif')}}"/> <span class="sty-font-15">Cargando la lista de mensajes...</span>
+    </div>
+    <div id="list_content">
+    </div>
+</div>
+<div style="display: none;" class="fixer" id="message_box">
+    <div class="sheet-art sty-box-padding-10" id="message_content">
+
+    </div>
+</div>

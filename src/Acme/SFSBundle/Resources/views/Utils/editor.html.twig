@@ -1,0 +1,15 @@
+{% extends template_parent %}
+
+{% block editor %}
+    {% if redirect != "" %}
+        <a href="{{redirect}}" class="btn btn-danger pull-right">Volver a la pagina anterior</a>
+    {% endif %}
+    {{render(controller('AcmeSFSBundle:Schema:list', {'bundle': bundle, 'entity': entity}))}}
+    {% if id > 0 %}
+        <script>
+            $(function(){
+                SchemaList_{{bundle}}{{entity}}.editElement({{id}});
+            });
+        </script>
+    {% endif %}
+{% endblock %}

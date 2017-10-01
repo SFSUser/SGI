@@ -1,0 +1,84 @@
+{% extends template_parent %}
+
+{% block editor %}
+    <style>
+        /*
+        div.input-box{
+            padding: 10px;
+            overflow: auto;
+            width: 300px;
+            float: left;
+        } 
+        div.input-box input,div.input-box textarea,div.input-box select{
+            float: right;
+            width: 200px;
+            border-radius: 5px;
+            border-style: solid;
+            border-width: 1px;
+            padding: 5px;
+            border-color: #DDDDDD;
+        }
+        */
+        #{{space_name}}{
+            overflow: auto;
+            width: 100%;
+        }
+        #{{space_name}} > div{
+            padding: 10px;
+            overflow: auto;
+            width: 50%;
+            float: left;
+        }
+        #{{space_name}} > div > label{
+            display:inline-block;
+            width:30%;
+            overflow:hidden;
+            float:left;
+        }
+        #{{space_name}} > div > input, #{{space_name}} > div > textArea, #{{space_name}} > div > select,  #{{space_name}} > div > div{
+
+            display:inline-block;
+            width:70%;
+            border-radius: 5px;
+            border-style: solid;
+            border-width: 1px;
+            padding: 5px;
+            border-color: #DDDDDD;
+            float:left;
+        }
+    </style>
+    <script type="text/javascript">
+    function saveAndNew_{{space_name}}() {
+        $("#_mode").val("1");
+        $("#submit_button_{{space_name}}").click();
+    }
+    </script>
+    <form id="{{space_name}}_form" action="{{ path("add_editor", {bundle: bundle, entity: entity}) }}?id={{id}}" method="post" {{ form_enctype(form) }}>
+        <a class="button" href="
+           {% if back_redirect is defined and not back_redirect is null %}{{back_redirect}}{% else %}{{path("list_editor", {bundle: bundle, entity: entity})}}{% endif %}
+           ">
+            <img src="{{asset('bundles/acmesfs/img_icons/list.png')}}" align="top"/> Ver listado</a>
+        <input id="submit_button_{{space_name}}" class="button" value="Guardar elemento" type="submit" />
+        {% if id %}
+            <a class="button" href="{{ path("add_editor", {bundle: bundle, entity: entity, redirect: back_redirect}) }}">
+                <img src="{{asset('bundles/acmesfs/img_icons/add2.png')}}" align="top"/> Nuevo elemento
+            </a>
+        {% endif %}
+
+        <button class="button" onclick="saveAndNew_{{space_name}}()">
+            <img src="{{asset('bundles/acmesfs/img_icons/save.png')}}" align="top"/> Guardar y nuevo
+        </button>
+        {% if id %}
+            <button class="button" onclick="removeEntityElement('{{path('remove_editor')}}', '{{entity_path}}', {{id}}, '#items_no_existe', '/')">
+                <img src="{{asset('bundles/acmesfs/img_icons/remove.png')}}" align="top"/> Eliminar elemento
+            </button>
+        {% endif %}
+        <input id="_mode" name="_mode" value="" type="hidden"/>
+        <hr>
+
+        {{ form_widget(form) }}    
+        {% if not back_redirect is null %}
+            <input type="hidden" name="redirect" value="{{back_redirect}}"/>
+        {% endif %}
+    </form>
+{% endblock %}

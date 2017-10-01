@@ -1,0 +1,35 @@
+{# empty Twig template #}
+
+{% extends "AcmeWebBundle:Default:base.html.twig" %}
+{% block component %}
+    <div class="sty-box-overflow-auto sty-box-margin-top-5">
+        <div class="col-md-3">
+            <center>
+                {{render(controller('AcmeSFSBundle:Contact:contact'))}}
+            </center>
+        </div>
+        <div class="col-md-9">
+            <div style="border-radius: 15px 15px 0 0;overflow: hidden;" class="www-greenborder">
+                {#<div class="www-background bg-contact sty-box-padding-10" style="height: 170px;background-position-y: top;">
+                    <div class=" sty-box-text-center" style="max-width: 500px;">
+                        <span class="sty-label-blue" style="font-size: 22px;">¿Deseas cotizar nuestro servicios?<br>Por favor ingresa a:</span><br>
+                        <a class="btn btn-info sty-font-20" href="{{path('url_cotizacion')}}">Cotización en línea</a>
+                    </div>
+                </div>#}
+                <div class="bg-info www-background  sty-box-padding-5">
+                    <p class="sty-font-median">
+                        <span class="label label-info">Telefonos:</span> {{render(controller('AcmeSFSBundle:Segment:index',{identifier:'IPSCDOTelefono', type: 'text'}))}}<br>
+                        <span class="label label-info">Celulares:</span> {{render(controller('AcmeSFSBundle:Segment:index',{identifier:'IPSCDOCelulares', type: 'text'}))}}<br>
+                        <span class="label label-info">Direccion:</span> {{render(controller('AcmeSFSBundle:Segment:index',{identifier:'IPSCDODireccion', type: 'text'}))}}<br>
+                        <span class="label label-info">Correo:</span> {{render(controller('AcmeSFSBundle:Segment:index',{identifier:'IPSCDOCorreo', type: 'text'}))}}
+                    </p>
+                </div>
+            </div>
+            <div class="sheet-art sty-box-padding-5">  
+                <div class="segment-content">
+                    {{render(controller('AcmeSFSBundle:Blog:index',{identifier: 'IPSCDOContactInfo'}))}}
+                <iframe src="https://mapsengine.google.com/map/embed?mid=zoTcG7EGqVao.ksVejBv1_KiA&z=17" width="100%" height="480"></iframe>
+            </div>
+        </div>
+    </div>
+{% endblock %}

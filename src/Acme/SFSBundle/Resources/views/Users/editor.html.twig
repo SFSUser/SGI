@@ -1,0 +1,23 @@
+{# empty Twig template #}
+{# empty Twig template #}
+{% extends "AcmeSFSBundle:Default:base.html.twig" %}
+{% block body %}
+<h3>El autor tiene los siguientes errores</h3>
+<h1>{{msg}}</h1>
+<ul>
+{% for error in errores %}
+    <li>{{ error.mensaje }}</li>
+{% endfor %}
+</ul>
+<hr>
+<b>Form Errors: </b><br>
+{{ form_errors(form) }}
+<b>Form Inputs: </b><br>
+<div>
+</div>
+<hr>
+<form id="productos_form" action="{{ path("manage_user_info") }}?id={{id}}" method="post" {{ form_enctype(form) }}>
+{{ form_widget(form) }}
+    <input type="submit" />
+</form>
+{% endblock %}

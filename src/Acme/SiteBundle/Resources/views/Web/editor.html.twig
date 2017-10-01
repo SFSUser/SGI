@@ -1,0 +1,10 @@
+{# empty Twig template #}
+{% extends template_parent %}
+{% block title %}
+    Editor de objetos
+{% endblock %}
+{% block body %}
+    <div class="fixer sheet-art sty-box-padding-5">
+        {% block component %} {{ parent() }}{% endblock %}
+    </div>
+{% endblock %}

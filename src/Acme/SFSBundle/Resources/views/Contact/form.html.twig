@@ -1,0 +1,58 @@
+{# empty Twig template #}
+<script>
+    $(function() {
+        $("#contact_form").submit(function(e) {
+            e.preventDefault();
+            submitContact();
+        });
+    });
+    function submitContact() {
+        setElementDisableState("#contact_form", false);
+        $.ajax({
+            url: "{{path('add_contact')}}",
+            data: {
+                "categoria": "Empresa",
+                "contenido": makeMessage(),
+                "titulo": $("#titulo_msg").html()
+            },
+            success: function() {
+                $("#contact_box").hide();
+                $("#contact_success_box").show();
+                setElementDisableState("#contact_form", true);
+            },
+            error: function() {
+                setElementDisableState("#contact_form", true);
+            }
+        });
+        return false;
+    }
+    function resend() {
+        $("#contact_box").show();
+        $("#contact_success_box").hide();
+    }
+    function makeMessage() {
+        var title = $("#titulo_msg");
+        var my_templ = $("#contact_template");
+        $("#contact_form").find("textarea, input").each(function() {
+            var id = $(this).attr("id");
+            var value = $(this).val();
+            $(title).find("." + id).html(value);
+            $(my_templ).find("." + id).html(value);
+        });
+        return $(my_templ).html();
+    }
+</script>
+
+
+<div class="contact-form sty-box-smuth sty-box-text-center sty-box-padding-10" style="max-width: 400px;">
+    <div id="contact_box">
+        {% include "AcmeSFSBundle:Contact:template.html.twig" %}
+    </div>
+
+    <div style="display: none;" id="contact_success_box">
+        <img height="100" src="{{asset('/img/logo.png')}}" align="middle"/><br>
+        <span class="sty-label-blue sty-font-20">Correcto: Gracias por contactarnos</span>
+        <br>
+        <a href="javascript:resend()" class="btn btn-info">Volver a enviar mensaje</a>
+    </div>
+</div>

@@ -1,0 +1,14 @@
+parameters:
+#    acme_web.example.class: Acme\WebBundle\Example
+
+services:
+#    acme_web.example:
+#        class: %acme_web.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]
+
+services:
+    app.twig_extension:
+        class: Acme\WebBundle\Twig\AppExtension
+        public: true
+        tags:
+            - { name: twig.extension }

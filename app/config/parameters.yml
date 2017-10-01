@@ -1,0 +1,41 @@
+
+parameters:
+    database_driver: pdo_mysql
+    database_host: 127.0.0.1
+    database_port: '3306'
+    database_name: 'sgisas'
+    database_user: root
+    database_password: '0000'
+    mailer_transport: smtp
+    mailer_host: 127.0.0.1
+    mailer_user: null
+    mailer_password: null
+    locale: en
+    secret: 829aec0c0af8a1847b020727b74924f14cea3d96
+    database_path: null
+    www_title: 'Servicios de Gestión integrada S.A.S - Neiva, Huila, Girardot'
+    www_descripcion: 'Servicios de Gestión integrada'
+    www_keywords: 'alturas y anclajes, trabajo seguro en alturas, certificados laborales'
+    www_tags: 'alturas y anclajes, trabajo seguro en alturas, certificados laborales, andamios, neiva, girardot, cundinamarca, huila'
+    www_og_site_name: 'SGISAS'
+    www_ga: 'UA-64530276-1'
+    www_lang: 'es'
+    www_date: '2015'
+    www_copyright: 'Copyright %www_date%'
+    www_og_type: 'site'
+    www_autor: 'SFSSoft'
+
+twig:
+    globals:
+        www_autor: %www_autor%
+        www_date: %www_date%
+        www_title: %www_title%
+        www_description: %www_descripcion%
+        www_keywords: %www_keywords%
+        www_tags: %www_tags%
+        www_og_site_name: %www_og_site_name%
+        www_ga: %www_ga%
+        www_og_site_name: %www_og_site_name%
+        www_og_type: %www_og_type%
+        www_lang: %www_lang%
+        www_copyright: %www_copyright%

@@ -1,0 +1,80 @@
+{# empty Twig template #}
+{% extends 'AcmeWebBundle:Default:base.html.twig' %}
+{% block title %}
+    Noticia
+{% endblock %}
+{% block body %}
+    <script>
+        $(function () {
+            $("#veriy_certified").submit(function (e) {
+                e.preventDefault();
+                $("#verify_results").html("");
+                $("#loading_results").slideDown();
+                $("#verify_results,#bad_results").slideUp();
+                $.ajax({
+                    url: 'http://siim.ipscdo.com/certificados/verificar',
+                    data: {
+                        code: $("#id_verify").val()
+                    },
+                    success: function (e) {
+                        $("#verify_results").html(e);
+                        $("#verify_results").slideDown();
+                        $("#loading_results").slideUp();
+                    },
+                    error: function (e) {
+                        console.log(e);
+                        $("#bad_results").slideDown();
+                        $("#loading_results").slideUp();
+                    }
+                });
+            });
+            if ($("#id_verify").val() !== "") {
+                $("#veriy_certified").submit();
+            }
+        });
+    </script>
+    <div style="min-height: 700px">
+        <div class="sheet-art fixer sty-box-padding-10" style="max-width: 800px;width: auto;">
+            <div class="layout-responsive-desktop">
+                <div class="sty-box-overflow-auto">
+                    <div class="col-md-9">
+                        <h1>Portal para verificar certificados</h1>
+                        <b>Instrucciones:</b>
+                        Cada certificado y carnet viene con un código único <b>(señalados en la imagen derecha)</b> el cual debe ingresar en el campo de abajo.
+                        <br>
+                        Tambien puede realizar las consultas por el número de documento de esta forma se listarán todos los cursos realizados.
+                    </div>
+                    <div class="col-md-3">
+                        <img class="sty-box-margin-5 sheet-art" width="100%" src="http://i.imgur.com/lJI4F7A.png"/>
+                        <img class="sty-box-margin-5 sheet-art" width="100%" src="http://i.imgur.com/TJIJ3uX.png"/>
+                    </div>
+                </div>
+                <hr>
+            </div>
+            <form class=" sty-box-text-center" id="veriy_certified" style="display: inline-block">
+                <div class="col-md-3 sty-box-text-center">
+                    <img height="120px" src="http://i.imgur.com/5JgySvK.png"/>
+                </div>
+                <div class="col-md-9">
+                    <span>Para verificar el carnet o certificado, por favor ingrese el <b>código</b> que viene en la parte inferior del carnet <b>(Ejemplo: TSA312)</b>. O bien ingrese el <b>documento</b> del participante. </span>
+                    <br>
+                    <div class="input-group input-group-lg sty-box-margin-10">
+                        <span class="input-group-addon" id="sizing-addon1">Código</span>
+                        <input value="{{id}}" required="" id="id_verify" type="text" class="form-control" placeholder="Ingrese el código o el documento de identidad" aria-describedby="sizing-addon1">
+                    </div>
+                    <input type="submit" class="btn btn-info" value="Verificar certificados"/>
+                </div>
+            </form>
+            <hr>
+            <div style="display: none" id="loading_results">
+                <img src="{{asset('/bundles/acmesfs/img/loading_mini.gif')}}"/>
+                <span>Verificando los datos ingresados, por favor espere...</span>
+            </div>
+            <div id="verify_results"></div>
+            <div style="display: none;" id="bad_results">
+                <h1 class="sty-label-red">Un error ha ocurrido</h1>
+                <span>Ocurrió un error al intentar verificar el código/documento ingresado, por favor intente más tarde. <b>Si el problema persiste después de 20 minutos contáctese con nuestras líneas telefónicas.</b></span>
+            </div>
+        </div>
+    </div>
+{% endblock %}

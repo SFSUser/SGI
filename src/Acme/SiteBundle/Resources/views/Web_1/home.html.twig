@@ -1,0 +1,9 @@
+{# empty Twig template #}
+{% extends template_parent %}
+{% block title %}
+    Home
+{% endblock %}
+{% block body %}
+    <h2>Home</h2>
+    {% block component %} {{ parent() }}{% endblock %}
+{% endblock %}

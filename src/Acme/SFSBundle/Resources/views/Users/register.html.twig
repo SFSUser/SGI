@@ -1,0 +1,320 @@
+<style type="text/css">
+    .dialog-box{
+        padding: 5px;
+        border-style: solid;
+        border-color: #09F;
+        border-radius: 5px;
+        background-color: white;
+        font-family: Arial, Helvetica, sans-serif;
+        width: auto;
+        display: inline-block;
+        max-width: 200px;
+    }
+    #submit_button{
+        font-size: 20px;
+        color: blue;
+    }
+    #submit_button:hover{
+        color: #09F;
+    }
+    #register_form{
+        padding: 10px;
+        border-width: 1px;
+        border-style: solid;
+        border-color: #09F;
+        background-color: whitesmoke;
+        width: auto;
+        display: inline-block;
+        border-radius: 10px;
+    }
+</style>
+<script>
+    var server_mode = false;
+    var server_username = false;
+    function checkUserAvaible() {
+        var user = $("#username").val();
+        var params = "user=" + user;
+
+
+        executeCall("{{path('user_check_action')}}", params, function(data) {
+            avaible = data["result"];
+
+            var field = "username";
+            var msg = null;
+            var txt = $("#" + field).val();
+            var filter = /^([a-zA-Z0-9_\.\-])+$/;
+
+            if (avaible) {
+                server_username = false;
+                console.log("Server: User name avaible");
+                setInputState(field, "Nombre de usuario disponible.", true);
+            } else {
+                server_username = true;
+                console.log("Server: Used user name");
+                setInputState(field, "El nombre de usuario ya esta en uso.", false);
+            }
+        });
+    }
+
+    function submitRegister() {
+        var ok = true;
+        ok &= checkFUsername() == null;
+        ok &= checkFName() == null;
+        ok &= checkFApellido() == null;
+        ok &= checkFEmail() == null;
+        ok &= checkFPassword() == null;
+        ok &= checkFBirthday() == null;
+
+        if (!ok) {
+            console.log("Bad info");
+            //return;
+        } else {
+            console.log("OK");
+        }
+
+        var day = $("#dia").val();
+        var month = $("#mes").val();
+        var year = $("#anio").val();
+        var date = day + "-" + month + "-" + year;
+
+        var params = "";
+        params += "&username=" + $("#username").val();
+        params += "&name=" + $("#name").val();
+        params += "&apellido=" + $("#apellido").val();
+        params += "&email=" + $("#email").val();
+        params += "&password=" + $("#password").val();
+        params += "&day=" + day;
+        params += "&month=" + month;
+        params += "&year=" + year;
+        params += "&notices=" + $("#notices").attr("checked") != null;
+        console.log(params);
+        setElementDisableState("#submit_button", false);
+        executeCall("{{path('user_register_action')}}", params, function(data) {
+            setElementDisableState("#submit_button", true);
+            var message = data["message"];
+            console.log(data);
+            server_mode = true;
+            switch (data["result"]) {
+                case 0:
+                    registred();
+                    break;
+                case 1:
+                    checkFUsername();
+                    break;
+                case 2:
+                    checkFName();
+                    break;
+                case 3:
+                    checkFApellido();
+                    break;
+                case 4:
+                    checkFEmail();
+                    break;
+                case 5:
+                    checkFPassword();
+                    break;
+                case 6:
+                    checkFBirthday();
+                    break;
+                default:
+                    showMessage("Error al registrarse: " + message, "submit_register_message", "error", "");
+                    break;
+            }
+            server_mode = false;
+        });
+    }
+    function registred() {
+        $("#name_registred").html($("#name").val());
+        $("#username_registred").html($("#username").val());
+        $("#fields").remove();
+        $("#registred").css("display", "block");
+    }
+    function checkFUsername() {
+        var field = "username";
+        var msg = null;
+        var txt = $("#" + field).val();
+        var filter = /^([a-zA-Z0-9_\.\-])+$/;
+
+        if (server_username) {
+            msg = "El nombre de usuario ya esta en uso."
+        } else if (!(txt.length >= 3 && txt.length <= 15) || server_mode) {
+            msg = "El nombre debe tener entre 3 y 15 carácteres.";
+        } else if (!filter.test(txt)) {
+            msg = "Solo se aceptan caracteres alfanuméricos y guiones.";
+        }
+        checkUserAvaible();
+
+        setInputState(field, msg, !msg);
+        return msg;
+    }
+    function checkFName() {
+        var field = "name";
+        var msg = null;
+        var txt = $("#" + field).val();
+        var filter = /^([a-zA-Z0-9\ ])+$/;
+
+        if (!(txt.length >= 3) || server_mode) {
+            msg = "El nombre debe tener más de 3 carácteres.";
+        } else if (!filter.test(txt)) {
+            msg = "Solo se aceptan caracteres y espacios.";
+        }
+
+        setInputState(field, msg, !msg);
+        return msg;
+    }
+    function checkFApellido() {
+        var field = "apellido";
+        var msg = null;
+        var txt = $("#" + field).val();
+        var filter = /^([a-zA-Z0-9\ ])+$/;
+
+        if (!(txt.length >= 3) || server_mode) {
+            msg = "El apellido debe tener más de 3 carácteres.";
+        } else if (!filter.test(txt)) {
+            msg = "Solo se aceptan caracteres y espacios.";
+        }
+
+        setInputState(field, msg, !msg);
+        return msg;
+    }
+    function checkFEmail() {
+        var field = "email";
+        var msg = null;
+        var txt = $("#" + field).val();
+        if (!checkEmail(txt) || server_mode) {
+            msg = "El correo ingresado no es válido.";
+        }
+        setInputState(field, msg, !msg);
+        return msg;
+    }
+    function checkFPassword() {
+        var field = "password";
+        var msg = null;
+        var txt = $("#" + field).val();
+        var txt2 = $("#" + field + "2").val();
+        if (txt.length <= 5 || server_mode) {
+            msg = "La contraseña ingresada es muy corta.";
+        } else if (txt != txt2) {
+            msg = "Las contraseñas no coinciden.";
+        }
+        setInputState(field, msg, !msg);
+        return msg;
+    }
+    function checkFBirthday() {
+        var field = "birthday";
+        var msg = null;
+
+        var day = $("#dia").val();
+        var month = $("#mes").val();
+        var year = $("#anio").val();
+
+        if (server_mode) {
+            msg = "Por favor verifica la fecha de nacimiento.";
+        }
+        if (!day) {
+            msg = "Por favor selecciona el día de nacimiento.";
+        } else if (!month) {
+            msg = "Por favor selecciona el mes de nacimiento.";
+        } else if (!year) {
+            msg = "Por favor selecciona el año de nacimiento.";
+        }
+        setInputState(field, msg, !msg);
+        return msg;
+    }
+    function setInputState(element, message, state) {
+        element_c = "#" + element + ", #label_" + element + ", #message_" + element;
+        if (state) {
+            $("#message_" + element).html("Correcto");
+            $(element_c).css("color", "green");
+        } else {
+            $("#message_" + element).html(message);
+            $(element_c).css("color", "red");
+        }
+    }
+</script>
+<div id="register_form">
+    <table id="fields">
+        <tr>
+            <td>
+                <span id="label_username" class="sty-label-blue">Nombre de la cuenta</span>
+                <input onchange="checkFUsername()" id="username" name="username" maxlength="15" class="input-text-radius" type="text">
+            </td>
+            <td><div class="dialog-box" id="message_username">*</div></td>
+        </tr>
+        <tr>
+            <td>
+                <span id="label_name" class="sty-label-blue">Nombre</span>
+                <input onchange="checkFName()" id="name" name="name" maxlength="100" class="input-text-radius" type="text">
+            </td>
+            <td><div class="dialog-box" id="message_name">*</div></td>
+        </tr>
+        <tr>
+            <td>
+                <span id="label_apellido" class="sty-label-blue">Apellido</span>
+                <input onchange="checkFApellido()" id="apellido" name="apellido" maxlength="100" class="input-text-radius" type="text">
+            </td>
+            <td><div class="dialog-box" id="message_apellido">*</div></td>
+        </tr>
+        <tr>
+            <td>
+                <span id="label_email" class="sty-label-blue">Correo</span>
+                <input onchange="checkFEmail()" id="email" name="email" class="input-text-radius" type="email">
+            </td>
+            <td><div class="dialog-box" id="message_email">*</div></td>
+        </tr>
+        <tr>
+            <td>
+                <span id="label_password" class="sty-label-blue">Contraseña</span>
+                <input onchange="checkFPassword()" id="password" name="password" class="input-text-radius" type="password">
+            </td>
+            <td><div class="dialog-box" id="message_password">*</div></td>
+        </tr>
+        <tr>
+            <td>
+                <span id="label_password2" class="sty-label-blue">Confirmar contraseña</span>
+                <input onchange="checkFPassword()" id="password2" name="password2" class="input-text-radius" type="password"> 
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>
+                <span class="sty-label-blue">Nací el </span>
+                <select onchange="checkFBirthday()" id="dia" name="dia">
+                    <option value="" selected>Día</option>
+                    {% for x in 1..31 %}
+                        <option value="{{x}}">{{x}}</option>
+                    {% endfor %}
+                </select>
+                <select onchange="checkFBirthday()" id="mes" name="mes">
+                    <option value="" selected>Mes</option>
+                    {% for key, value in months %}
+                        <option value="{{key}}">{{value}}</option>
+                    {% endfor %}
+                </select>
+                <select onchange="checkFBirthday()" id="anio" name="anio">
+                    <option value="" selected>Año</option>
+                    {% for x in 1900..2050 %}
+                        <option value="{{x}}">{{x}}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td><div class="dialog-box" id="message_birthday">*</div></td>
+        </tr>
+        <tr>
+            <td>
+                <div style="margin-bottom: 5px;"><div id="submit_register_message"></div></div>
+                <button id="submit_button" class="button" onclick="submitRegister()">¡Registrarme!</button>
+                <input id="notices" name="notices" type="checkbox" checked/>
+                <label class="sty-label-blue" for="notices">Enviarme noticias</label>
+            </td>
+            <td></td>
+        </tr>
+    </table>  
+    <div style="display: none;" id="registred">
+        <h1 class="sty-label-orange">¡Felicitaciones <span id="name_registred">USERNAME</span>!</h1>
+        <span class="sty-label-blue">Ya eres miembro de esta comunidad. Tu nombre de usuario será <span id="username_registred">NAME</span>.</span>
+        <p>
+            <span class="sty-label-blue">Te invitamos a explorar tu cuenta y añadirle mas información <a href="/settings" class="sty-label-orange">aqui</a>.</span>
+        </p>
+    </div>
+</div>

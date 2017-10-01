@@ -1,0 +1,179 @@
+{# empty Twig template #}
+<script>
+    function Tagger(input_name, container, tags) {
+        var context = this;
+        var tagger = this;
+        this.tags = tags != "" ? tags.replace(" ", "").split(",") : [];
+        this.elements = new ItemCollection();
+        this.elements.setInput(input_name);
+        
+        //Este codigo vigila que el elemento input cambie cuando se le cargue el valor:
+        $(input_name).change(function(){
+            context.elements.setInput(input_name);
+            context.load();
+        });
+        
+        this.alphanumeric = alphanumerics = true;
+        this.container = container;
+        this.input = input_name;
+        $(input_name).hide();
+        $(container).find("button").click(function() {
+            tagger.clearTags();
+        });
+        $(container).find("input").keyup(function(event) {
+            if (event.keyCode == 13) {
+                var tag = $(this).val();
+                if (tag == "")
+                    return;
+                console.log("Adding tag: " + tag);
+
+                var tags = tag.split(/[,/|-]+/)
+                for (var x in tags) {
+                    x = tags[x];
+                    if (alphanumerics) {
+                        //Mantener acentos, ñ y ü
+                        x = x.replace(/[^a-z0-9\sáéíóúüñ]/gi,'');
+                    }
+                    if (x != "") {
+                        tagger.addTag(x);
+                    }
+                }
+                $(this).val("");
+            }
+        });
+        this.load();
+        this.elements.saveInput();
+    }
+
+    Tagger.prototype.load = function() {
+        for (var x in this.elements.getValues()) {
+            this.createTag(this.elements.get(x));
+        }
+        for (var x in this.tags) {
+            if (!this.elements.exists(this.tags[x])) {
+                this.addPreTag(this.tags[x]);
+            }
+        }
+    };
+
+    Tagger.prototype.checkPreTag = function(tag) {
+        for (var x in this.tags) {
+            x = this.tags[x];
+            if (x == tag) {
+                this.addPreTag(tag);
+            }
+        }
+    };
+    Tagger.prototype.addPreTag = function(tag) {
+        var tagger = this;
+        var tmp = $("#tag_template").children("div").clone();
+        $(tmp).find(".tag-name").html(tag);
+        $(tmp).find("img").remove();
+        //$(tmp).attr("tag_id", tag);
+        $(tmp).click(function() {
+            tagger.addTag(tag);
+            $(this).fadeOut(500, function() {
+                $(this).remove();
+            });
+        });
+        $(this.container).children(".pre-taggers").append(tmp);
+    };
+    Tagger.prototype.addTag = function(tag) {
+        if (this.elements.exists(tag)) {
+            return;
+        }
+        //$("[tag_id=" + tag + "]").fadeOut(500, function() {
+        //    $(this).remove();
+        //});
+        this.elements.add(tag);
+        this.createTag(tag);
+    };
+    Tagger.prototype.createTag = function(tag) {
+        var tagger = this;
+        var tmp = $("#tag_template").children("div").clone();
+        $(tmp).find(".tag-name").html(tag);
+        $(tmp).css("background-color", "#82ad2b");
+
+        $(tmp).find("img").click(function() {
+            console.log("Removing: " + tag);
+            tagger.checkPreTag(tag);
+            tagger.elements.removeValue(tag);
+            $(this).parent().parent().remove();
+        });
+        $(this.container).find(".taggers").append(tmp);
+    };
+    Tagger.prototype.clearTags = function() {
+        this.elements.clear();
+        $(this.container).find(".taggers").html("");
+        $(this.container).find(".pre-taggers").html("");
+        //Add pretags
+        this.load();
+    };
+
+    var tagger_{{name}} = null;
+    $(function() {
+        tagger_{{name}} = new Tagger('#{{name}}', '#tag_container_{{name}}', '{{tags}}');
+    });
+</script>
+<div class="tag-container" id="tag_container_{{name}}">
+    <button class="button">Borrar todo</button>
+    <b>Seleccione los tags</b>
+    <hr>
+    <div class="taggers"></div>
+    <input placeholder="Ingrese los tags..." class="tag-input" type="text"/>
+    <div class="pre-taggers"></div>
+</div>
+
+<style>
+    .tag-container{
+        overflow: auto;
+        padding: 10px;
+        border-style: solid;
+        border-color: #A2A2A2;
+        border-width: 1px;
+        border-radius: 5px;
+        margin: 20px 0px 20px 0px;
+    }
+    .tag-input{
+        margin-left: 5px;
+        float: left;
+        width: 200px;
+        border-radius: 5px;
+        border-style: solid;
+        border-width: 1px;
+        padding: 5px;
+        border-color: #DDDDDD;
+    }
+    .tag-box{
+        margin-left: 5px;
+        float: left;
+        width: auto;
+        padding: 5px;
+        border-radius: 5px;
+        border-width: 1px;
+        border-color: #D9D9D9;
+        border-style: solid;
+        font-family: Helvetica;
+    }
+    .tag-floatbox{
+        float: right;
+        width: auto;
+    }
+    .color-gallery{
+        overflow: auto;
+        padding: 10px;
+        border-style: solid;
+        border-color: #A2A2A2;
+        border-width: 1px;
+        border-radius: 5px;
+    }
+</style>
+
+<div style="display: none;">
+    <div id="tag_template">
+        <div class="tag-box">
+            <div class="tag-floatbox tag-name">Color</div>
+            <div class="tag-floatbox"><img class="close-button" src="{{asset('bundles/acmesfs/img/close.png')}}" align="middle"></div>
+        </div>
+    </div>
+</div>

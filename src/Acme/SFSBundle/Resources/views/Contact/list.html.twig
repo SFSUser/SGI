@@ -1,0 +1,33 @@
+{# empty Twig template #}
+<center>{{buttons|raw}}</center>
+{% for item in mensajes%}
+    <div titulo=" {{item.titulo|striptags|raw}}" id="contact_message_{{item.id}}" class="{% if item.estado == 0 %}contact-title-new{% endif %} contact-title sty-box-overflow-auto">
+        {% if item.estado == 0 %}
+            <span class="label label-success">Nuevo!</span> 
+        {% endif %}
+        {% if item.estado == 1 %}
+            <span class="label label-default">Leído</span> 
+        {% endif %}
+        {% if item.estado == 2 %}
+            <span class="label label-info">Respondido</span> 
+        {% endif %}
+        {% if item.estado == 3 %}
+            <span class="label label-danger">Descartado</span> 
+        {% endif %}
+        <span class="label label-info">{{item.categoria}}</span>
+        <span>{{item.titulo|striptags|raw}}</span> - <span title="{{item.fecha_formatted}}" class="sty-label-gray">recibido hace {{item.fecha_friendly}}</span>
+
+        <button class="btn btn-danger pull-right" onclick="removeEntityElement('{{path('remove_editor')}}', 'AcmeSFSBundle:SFSContact', {{item.id}}, '#contact_message_{{item.id}}', '')">
+            Eliminar
+        </button>
+        <button class="btn btn-info pull-right sty-box-margin-right-5" onclick="showContact({{item.id}})">
+            Leer
+        </button>
+    </div>
+{% endfor %}
+{% if mensajes is empty %}
+    <div>
+        <h1>No hay mensajes a mostrar</h1>
+    </div>
+{% endif %}
+<center>{{buttons|raw}}</center>

@@ -1,0 +1,60 @@
+<script src="{{asset('bundles/acmesfs/js/google_maps.js')}}"></script>
+<script src="http://maps.google.es/maps/api/js?hl=es&sensor=true" type="text/javascript"></script>
+<script type="text/javascript">
+    google.maps.event.addDomListener(window, "load", function() {
+        GoogleMaps.initialize("map-canvas");
+        GoogleMaps.setInputElement("{{name}}");
+        GoogleMaps.loadInputLocation();
+    });
+    $(function() {
+        $("#adress_input").keyup(function(event) {
+            if (event.keyCode == 13) {
+                setAddressList();
+            }
+        });
+    });
+    var last_google_address_quest = null;
+    function setAddressList() {
+        var search = $("#adress_input").val();
+        GoogleMaps.codeAddress(search);
+    }
+    function setAddressValue() {
+        var search = $("#adress_input").val();
+        if (search == "") {
+            search = $("#pais").val();
+            search += maskValue(", %s", $("#departamento_estado").val());
+            search += maskValue(" - %s", $("#ciudad_provincia").val());
+            search += maskValue(", %s", $("#direccion").val());
+            $("#adress_input").val(search);
+        }
+    }
+    /*Cargar imágenes de la lista anterior*/
+    window.onload = function() {
+        $(document).ready(function() {
+            $("#{{form}}").submit(function(event) {
+                GoogleMaps.saveInputLocation();
+                return true;
+            });
+        });
+    }
+</script>
+<table style="width: 100%">
+    <tr>
+        <td width="300px">
+            <h2 class="sty-label-blue sty-font-median">Google Maps</h2>
+            <span class="sty-label-gray sty-font-small">Por favor, seleccione su ubicación física marcando con un click su posición en el mapa, o haga click en "Buscar y ubicar por geolocalización" para utilizar el sevicio de geolocalización y posicionar mas rápido el lugar.</span>
+            <br/>
+    <center>
+        <span class="sty-label-blue">Escriba la ubicación a buscar: </span>
+        <input onclick="setAddressValue()" class="input-text-radius" id="adress_input" type="text"/>
+        <button class="button" onclick="setAddressList()">Buscar y localizar</button>
+        <br/>
+        <button class="button" onclick="GoogleMaps.setMarkInGeolocation();"><img align="top" src="{{ asset('bundles/acmesfs/img/geolocate.png') }}"/> Buscar y ubicar por geolocalización</button>
+        <br/>
+        <button class="button" onclick="GoogleMaps.loadInputLocation();">Dejar como estaba</button>
+        <br/>
+    </center>
+</td>
+<td><div class="sty-box-dotted sty-box-radius-10" style="height:300px;" id="map-canvas"></div></td>
+</tr>
+</table>

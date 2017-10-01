@@ -1,0 +1,552 @@
+{# empty Twig template #}
+
+
+<style>
+
+    .column-filter{
+        margin: 10px auto 0 auto;
+        max-width: 400px;
+        padding: 10px;
+        border-radius: 5px;
+        border-style: solid;
+        border-color: gainsboro;
+        border-width: 1px;
+        position: absolute;
+        background-color: white;
+        padding-top: 10px;
+        //margin-left: -150px;
+        color: black;
+        left: 0;
+        right: 0;
+        -webkit-box-shadow: -2px 2px 30px -1px rgba(0,0,0,0.75);
+        -moz-box-shadow: -2px 2px 30px -1px rgba(0,0,0,0.75);
+        box-shadow: -2px 2px 30px -1px rgba(0,0,0,0.75);
+        z-index: 90;
+    }
+    .label-filter-active{
+        color: red;
+    }
+</style>
+<script>
+    var SchemaList_{{bundle ~ entity}} = {
+        page: 1,
+        page_count: 30,
+        enable_dialogs: false,
+        url: '{{path('get_schema_list')}}',
+        url_editor: '{{path('schema_editor')}}',
+        bundle: '{{bundle}}',
+        entity: '{{entity}}',
+        entity2: '{{entity2}}',
+        id2: '{{id2}}',
+        conds: JSON.parse('{{conds|json_encode()|raw}}'),
+        ress: JSON.parse('{{ress|json_encode()|raw}}'),
+        order: {id: "DESC"},
+        filter: {},
+        main_container: "#List_{{bundle ~ entity}}",
+        editor_container: "#bag_editor-{{bundle ~ entity}}",
+        target_onchange: null,
+        target_onreload: null,
+        top_editor: false,
+        setTopEditor: function(){
+            $(this.main_container).find(".nav-tabs").hide();
+            this.editor_container = "#bag_editor-top-{{bundle ~ entity}}";
+            this.top_editor = true;
+        },
+        applyFilter: function (column) {
+
+        },
+        removeFilter: function (column) {
+            this.page = 1;
+            this.filter[column] = {};
+            this.ress[column] = {};
+            this.getList();
+
+            $(this.main_container).find(".filter-added-" + column).remove();
+            $(this.main_container).find("#column_" + column).removeClass("label-filter-active");
+        },
+        hideFilter: function (column) {
+            $(this.main_container).find(".filter-added-" + column).hide();
+        },
+        paginate: function (p) {
+            this.page = p;
+            this.getList();
+        },
+        openFilter: function (column) {
+            var context = this;
+            var filter = $(this.main_container).find(".filter-added-" + column);
+            $(this.main_container).find(".filter-added").hide();
+
+            //No existe el filtro creado:
+            if ($(filter).size() <= 0) {
+                filter = $(this.main_container).find(".filter-for-" + column).clone();
+                $(this.main_container).find("#column_" + column).after(filter);
+                $(filter).find("script").each(function () {
+                    eval($(this).html());
+                });
+                //Marcar filtro
+                $(filter).removeClass("filter-for-" + column);
+                $(filter).addClass("filter-added-" + column);
+                $(filter).addClass("filter-added");
+
+                $(filter).find("form").submit(function (e) {
+                    e.preventDefault();
+
+                    var type = $(this).find("[name=type]").val();
+                    var search = $(this).find("[name=search]").val();
+                    var equal = $(this).find("[name=equal]").val();
+                    var operation = $(this).find("[name=operation]").val();
+                    if (equal === "" || equal === undefined) {
+                        var equal = $(this).find("[name=equal2]").val();
+                    }
+                    var mayor = $(this).find("[name=mayor]").val();
+                    var minor = $(this).find("[name=minor]").val();
+                    
+                    if(operation === "sum"){
+                        context.ress[column] = "sum";
+                    } else if(operation === "avg"){
+                        context.ress[column] = "avg";
+                    }
+
+                    if (search !== "" && search !== undefined) {
+                        context.filter[column] = {
+                            search: search
+                        };
+                        console.log("Filter: SEARCH");
+                    } else if (equal) {
+                        context.filter[column] = {
+                            equal: equal
+                        };
+                        console.log("Filter: EQUAL");
+                    } else if (mayor && !minor) {
+                        context.filter[column] = {
+                            mayor: mayor
+                        };
+                        console.log("Filter: MAYOR");
+                    } else if (minor && !mayor) {
+                        context.filter[column] = {
+                            minor: minor
+                        };
+                        console.log("Filter: MINOR");
+                    } else if (minor && mayor) {
+                        context.filter[column] = {
+                            between: {
+                                first: mayor,
+                                last: minor
+                            }
+                        };
+                        console.log("Filter: BETWEEN");
+                    }
+                    context.page = 1;
+                    context.getList();
+                    context.hideFilter(column);
+                    $(context.main_container).find("#column_" + column).addClass("label-filter-active");
+
+                    //console.log(search);
+                    //console.log(equal);
+                    //console.log(mayor);
+                    //console.log(minor);
+                });
+            }
+            $(filter).show();
+        },
+        showList: function () {
+            $(".tab-list-{{entity}}").addClass("active");
+            $(".tab-editor-{{entity}}").removeClass("active");
+            $("#bag_list-{{entity}}").show();
+            $(this.editor_container).hide();
+        },
+        showEditor: function () {
+            //Carga un formulario limpio si no encuentra nada.
+            if ($(this.editor_container).find("*").size() < 1) {
+                this.editElement(0);
+                return;
+            }
+            $(this.main_container).find(".tab-list-{{entity}}").removeClass("active");
+            $(this.main_container).find(".tab-editor-{{entity}}").addClass("active");
+            //Evitar ocultar la lista si el editor esta en la parte superior!
+            if(!this.top_editor){
+                $("#bag_list-{{entity}}").hide();
+            }
+            $(this.editor_container).show();
+        },
+        editElement: function (id) {
+            var context = this;
+            //var main_container = $("#List_{{bundle ~ entity}}");
+            var bag = $(context.editor_container);
+            //console.log(bag);
+            $(bag).html($(".loading-template").html());
+            context.showEditor();
+            $.ajax({
+                url: '{{path('schema_editor')}}',
+                data: {
+                    entity: this.entity,
+                    entity2: this.entity2,
+                    bundle: this.bundle,
+                    id: id,
+                    id2: this.id2,
+                    conds: this.conds
+                },
+                success: function (e) {
+                    var e = $(e);
+                    //Quitar el titulo del editor???
+                    if(context.top_editor){
+                        $(e).find(".panel-heading").hide();
+                    }
+                    bag.html("");
+                    bag.append(e);
+                    var reponseScript = e.filter("script");
+                    //Evalua los scripts porque no cargan al insertarlos 
+                    $.each(reponseScript, function (val) {
+                        eval(val.text);
+                    });
+
+                    if (!context.enable_dialogs) {
+                        $(e).hide();
+                        $(e).slideDown();
+                    } else {
+                        //$(e).appendTo("body");
+                        laster = e;
+                        //Condigo no seguro [2]
+                        $(e[2]).dialog({
+                            title: "Editor de elementos",
+                            width: "70%"
+                        });
+                    }
+                },
+                error: function (e) {
+                    console.log(e);
+                    context.showList();
+                    Utils.showBootstrapNotify("#bag_notify-{{entity}}", "danger", "Error", "El servidor no respondió correctamente.");
+                }
+            });
+        },
+        joinElement: function (id, mode) {
+            var main_container = $("#List_{{bundle ~ entity}}");
+            var context = this;
+            mode = mode ? "add" : "remove";
+            var tojoin = $(main_container).find(".table-item-" + id);
+            setElementDisableState(tojoin, false);
+            $.ajax({
+                url: '{{path('schema_ajaxjoineditor')}}',
+                data: {
+                    entity: this.entity,
+                    entity2: this.entity2,
+                    bundle: this.bundle,
+                    id: id,
+                    id2: this.id2,
+                    action: mode
+                },
+                success: function (e) {
+                    setElementDisableState(tojoin, true);
+                    console.log(e);
+                    if (e.result > 0) {
+
+                        context.getList();
+                        //Call Event
+                        if (context.target_onchange !== null) {
+                            context.target_onchange();
+                        }
+                    }
+                },
+                error: function (e) {
+                    setElementDisableState(tojoin, true);
+                    console.log(e);
+                }
+            });
+        },
+        deleteElement: function (id) {
+            var item = $("#List_{{bundle ~ entity}}").find("#element_" + id);
+            setElementDisableState(item, false);
+            var context = this;
+            $.ajax({
+                url: "{{path('schema_ajaxeditor')}}",
+                data: {
+                    id: id,
+                    action: "delete",
+                    bundle: this.bundle,
+                    entity: this.entity
+                },
+                success: function (e) {
+                    setElementDisableState(item, true);
+                    console.log(e);
+                    $(item).remove();
+
+                    //Call Event
+                    if (context.target_onchange !== null) {
+                        context.target_onchange();
+                    }
+                    if (context.target_onreload !== null) {
+                        context.target_onreload();
+                    }
+                },
+                error: function (e) {
+                    console.log(e);
+                    setElementDisableState(item, true);
+                }
+            });
+        },
+        changeOrder: function (column) {
+            var last_state = this.order[column];
+            this.order = {};
+            //console.log(last_state);
+            last_state = last_state === "DESC" ? "ASC" : "DESC";
+            this.order[column] = last_state;
+            this.getList();
+        },
+        getAjaxData: function () {
+            var data = {
+                paginator_page: this.page,
+                paginator_count: this.page_count,
+                entity: this.entity,
+                bundle: this.bundle,
+                conds: this.conds,
+                order: this.order,
+                id2: this.id2,
+                entity2: this.entity2,
+                filter: this.filter,
+                ress: this.ress
+            };
+            return data;
+        },
+        exportExcel: function () {
+            var data = this.getAjaxData();
+            var url = this.url + "?" + $.param(data) + "&export=excel";
+            window.location = url;
+        },
+        printElement: function (id) {
+            var data = {
+                id: id,
+                entity: this.entity,
+                bundle: this.bundle
+            };
+            var url = this.url_editor + "?" + $.param(data) + "&export=print";
+            window.open(url);
+        },
+        print: function () {
+            var data = this.getAjaxData();
+            var url = this.url + "?" + $.param(data) + "&export=print";
+            window.open(url);
+        },
+        getList: function () {
+            var context = this;
+            var content = $("#List_{{bundle ~ entity}}").find(".content");
+
+            var data = this.getAjaxData();
+            setElementDisableState(content, false);
+            $.ajax({
+                url: this.url,
+                data: data,
+                success: function (data) {
+                    setElementDisableState(content, true);
+                    content.html(data);
+                    if (context.target_onreload !== null) {
+                        context.target_onreload();
+                    }
+                    $(content).find(".update").each(function () {
+                        $(this).click(function () {
+                            alert();
+                            $(this).parent().find(".text-toggler").textToggler();
+                        });
+                    });
+                }
+            });
+        },
+        setElementsOnPage: function(size){
+            var context = this;
+            context.page = 1;
+            context.page_count = size;
+            context.getList();
+        },
+        prepare: function(){
+        }
+    };
+    $(function () {
+        {% if not tabular %}
+            SchemaList_{{bundle ~ entity}}.setTopEditor();
+        {% endif %}
+        SchemaList_{{bundle ~ entity}}.prepare();
+        SchemaList_{{bundle ~ entity}}.getList();
+    });
+</script>
+<div id="List_{{bundle ~ entity}}">
+    {% if tabular %}
+        <ul class="nav nav-tabs">
+            <li role="presentation" class="tab-list-{{entity}} active"><a href="javascript:SchemaList_{{bundle ~ entity}}.showList()">Listado - {{entity}}</a></li>
+            {% if is_granted('ROLE_ADMIN') or app.user.hasRole('ROLE_' ~ bundle ~ '_' ~ entity ~ '_ESCRITURA') %}
+                <li role="presentation" class="tab-editor-{{entity}}"><a href="javascript:SchemaList_{{bundle ~ entity}}.showEditor()">Editor de elementos</a></li>
+            {% endif %}
+        </ul>
+    {% endif %}
+    <div id="bag_notify-{{entity}}"></div>
+    
+
+    <div id="bag_list-{{entity}}" class="list-bag">
+        <div class="panel panel-info" style="min-height: 300px;">
+            <div class="panel-heading">
+                <span class="sty-font-20">
+                    Mostrando datos de <b>{{entity}}</b>
+                    {% if entity2 != '' %}
+                        para <b>{{entity2_name}}</b> #{{id2}}
+                    {% endif %}
+                </span>
+                {% if is_granted('ROLE_ADMIN') or app.user.hasRole('ROLE_' ~ bundle ~ '_' ~ entity ~ '_ESCRITURA') %}
+                    {% if is_granted('ROLE_ADMIN') or app.user.hasRole('ROLE_' ~ bundle ~ '_' ~ entity ~ '_CREAR') %}
+                        <a title="Crear nuevo elemento" class="btn btn-info pull-right" href="javascript:SchemaList_{{bundle ~ entity}}.editElement(0)"><img height="16" src="{{asset('/bundles/acmesfs/img_icons/add.png')}}"/></a>
+                    {% endif %}
+                {% endif %}
+                <a title="Actualizar listado" class="btn btn-default sty-box-margin-right-10 pull-right" href="javascript:SchemaList_{{bundle ~ entity}}.getList()"><img height="16" src="{{asset('/bundles/acmesfs/img_icons/reload.png')}}"/></a>
+                <a title="Exportar a hoja de cálculo" class="btn btn-success sty-box-margin-right-10 pull-right" href="javascript:SchemaList_{{bundle ~ entity}}.exportExcel()"><img height="16" src="{{asset('/bundles/acmesfs/img_icons/table_excel.png')}}"/></a>
+                <a title="Imprimir listado" class="btn btn-primary sty-box-margin-right-10 pull-right" href="javascript:SchemaList_{{bundle ~ entity}}.print()"><img height="16" src="{{asset('/bundles/acmesfs/img_icons/print.png')}}"/></a>
+
+                <select onchange="SchemaList_{{bundle ~ entity}}.setElementsOnPage(this.value)" title="Elementos visibles en la tabla" style="width: auto;margin-right: 5px;" class="pull-right form-control" id="page_count-{{entity}}">
+                    <option selected="">30</option>
+                    <option>100</option>
+                    <option>500</option>
+                    <option>1000</option>
+                </select>
+            </div>
+            <div id="bag_editor-top-{{bundle ~ entity}}" class="editor-bag"></div>
+            <div class="panel-body">
+                <div style="display: none;" class="loading-template">
+                    <div class="sty-box-padding-20">
+                        <img src="{{asset('/bundles/acmesfs/img/loading_mini.gif')}}"/> <span class="loading-description" style="font-size: 20px;">Cargando editor, por favor espere...</span>
+                    </div>
+                </div>
+                <div style="overflow-y: scroll">
+                    <table class="list-table" style="width: 100%">
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Acciones</th>
+                                    {% for x in columns%}
+                                    <th>
+                                        <img style="background-color: white;border-radius: 3px;" onclick="SchemaList_{{bundle ~ entity}}.changeOrder('{{x.name}}')" src="{{asset('/bundles/acmesfs/img_icons/orden_az.png')}}"/>
+                                        <img style="background-color: white;border-radius: 3px;" onclick="SchemaList_{{bundle ~ entity}}.openFilter('{{x.name}}')" src="{{asset('/bundles/acmesfs/img_icons/condiciones.png')}}"/> 
+                                        <span id="column_{{x.name}}">{{x.name|capitalize}}</span> 
+                                    </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody class="content">
+                            <tr>
+                                <td colspan="{{columns|length}}">
+                                    Cargando listado de elementos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        {% for x in columns%}
+            <div style="display: none;" class="column-filter filter-for-{{x.name}}">
+                <span>Aplicar filtros a la columna <b>{{x.name}}</b></span>
+                <form class="column-filter-form">
+                    <input type="hidden" name="type" value="{{x.type}}"/>
+
+                    {% if x.search_data|length > 0%}
+                        <div class="input-group">
+                            <span class="input-group-addon">Debe ser:</span>
+                            <select class="form-control" name="equal2">
+                                {% include 'AcmeSFSBundle:Schema:field_options_default.html.twig' with {data: x.search_data}%}
+                            </select>
+                        </div>
+                    {% endif %}
+
+                    {% if x.entity is not null %}
+                        <script>
+                            $.ajax({
+                                url: '{{path('url_search_input')}}',
+                                data: {
+                                    name: "equal2",
+                                    entity: "{{x.entity}}",
+                                    key: "id",
+                                    search_in: {}
+                                },
+                                success: function (h) {
+                                    var bag = $(".bag-search-{{loop.index}}_{{bundle ~ entity}}:first");
+                                    bag.html(h);
+                                    //eval(bag.find("script").html());
+                                }
+                            });
+                        </script>
+                        <div class="bag-search-{{loop.index}}_{{bundle ~ entity}}"></div>
+                        {#{render(controller('AcmeSFSBundle:Schema:fieldSearch',{entity: x.entity, key: 'id', name: 'equal', search_in: [] }))}#}
+                    {% else  %}
+                        {% if x.type == 'integer'%}
+                            <div class="input-group">
+                                <span class="input-group-addon">Igual que:</span>
+                                <input name="equal" type="number" class="form-control" placeholder="Escriba el número">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">Mayor que:</span>
+                                <input name="mayor" type="number" class="form-control" placeholder="Escriba el número">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">Menor que:</span>
+                                <input name="minor" type="number" class="form-control" placeholder="Escriba el número">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">Operación:</span>
+                                <select name="operation" class="form-control">
+                                    <option value="">Ninguna</option>
+                                    <option value="sum">Suma</option>
+                                    <option value="avg">Promedio</option>
+                                </select>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if x.type == 'string'%}
+                        <div class="input-group">
+                            <span class="input-group-addon">Que contenga:</span>
+                            <input name="search" type="text" class="form-control" placeholder="Escriba el texto">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">Operación:</span>
+                            <select name="operation" class="form-control">
+                                <option value="">Ninguna</option>
+                                <option value="sum">Suma</option>
+                                <option value="avg">Promedio</option>
+                            </select>
+                        </div>
+                    {% endif %}
+                    {% if x.type == 'boolean'%}
+                        <div class="input-group">
+                            <span class="input-group-addon">Debe ser:</span>
+                            <select name="equal" class="form-control">
+                                <option value="true">Verdadero</option>
+                                <option value="false">Falso</option>
+                            </select>
+                        </div>
+                    {% endif %}
+                    {% if x.type == 'datetime' or x.type == 'date' %}
+                        <div class="input-group">
+                            <span class="input-group-addon">Igual que:</span>
+                            <input name="equal" type="date" class="form-control" placeholder="Escriba la fecha">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">Mayor que:</span>
+                            <input name="mayor" type="date" class="form-control" placeholder="Escriba la fecha">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">Menor que:</span>
+                            <input name="minor" type="date" class="form-control" placeholder="Escriba la fecha">
+                        </div>
+                    {% endif %}
+                    <div class="sty-box-padding-5 sty-box-text-center">
+                        <input class="btn btn-success" type="submit" value="Aplicar"/>
+                        <a onclick="SchemaList_{{bundle ~ entity}}.removeFilter('{{x.name}}')" class="btn btn-info">Quitar</a>
+                        <a onclick="SchemaList_{{bundle ~ entity}}.hideFilter('{{x.name}}')" class="btn btn-danger">Cancelar</a>                                
+                    </div>
+                </form>                              
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<div id="bag_editor-{{bundle ~ entity}}" class="editor-bag"></div>
+{#
+<div>
+    <div class="sty-box-padding-5"></div>
+</div>#}

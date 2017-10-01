@@ -1,0 +1,5 @@
+
+{% extends template_parent %}
+{% block component %}  
+    {{render(controller('AcmeSFSBundle:Stats:index', {id: ga_id, type: app.request.get('type')}))}}
+{% endblock %}

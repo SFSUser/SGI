@@ -1,0 +1,10 @@
+{% extends template_parent %}
+
+{% block component %}  
+    <center>
+        <img style="max-height: 300px;" src="{{asset('/img/logo.png')}}">
+        <h1 class="sty-label-blue">Lo sentimos</h1>
+        <p class="sty-font-median">{{message}}</p>
+        <a class="btn btn-info" href="/">Volver al inicio</a>
+    </center>
+{% endblock %}

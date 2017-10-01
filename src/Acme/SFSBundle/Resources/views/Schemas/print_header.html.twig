@@ -1,0 +1,13 @@
+{# empty Twig template #}
+<table style="width: 100%">
+    <tr>
+        <td style="width: 200px;padding-right: 40px"><img width="100%" src="{{asset('/img/siim_logo.png')}}"/></td>
+        <td>
+            <b>SFSSIIM: </b> Sistema para el control y aplicación de vacunas<br>
+            <b>Fecha: </b> {{ "now"|date("Y-m-d H:i:s") }}<br>
+            <b>Impreso por: </b> {% if app.user is defined %}{{ app.user.username|upper }}{% endif %}<br>
+            
+        </td>
+        <td></td>
+    </tr>
+</table>

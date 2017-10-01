@@ -1,0 +1,12 @@
+acme_web:
+    resource: "@AcmeWebBundle/Resources/config/routing.yml"
+    prefix:   /
+
+acme_sfs:
+    resource: "@AcmeSFSBundle/Resources/config/routing.yml"
+    prefix:   /
+
+acme_site:
+    resource: "@AcmeSiteBundle/Resources/config/routing.yml"
+    prefix:   /
+

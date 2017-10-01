@@ -1,0 +1,53 @@
+{# empty Twig template #}
+<title>Vista de impresión</title>
+<script src="{{ asset('bundles/acmesfs/jquery/jquery-1.11.1.min.js') }}" type="text/javascript"></script>
+<style>
+    body{
+        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    }
+    table{
+        border: 1px;
+        width: 100%;
+        border-style: solid;
+    }
+    table th{
+        border: 1px;
+        border-style: solid;
+    }
+    table td{
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    @media print
+    {    
+        .no-print, .no-print *
+        {
+            display: none !important;
+        }
+        .print-page{
+            width: 1000px;
+        }
+    } 
+    @media not print{
+        body{
+            background-color: whitesmoke;
+        }
+        .print-page{
+            border-style: solid;
+            border-width: 1px;
+            padding: 20px;
+            background-color: white;
+            margin: 10 auto 10 auto;
+            max-width: 1000px;
+            min-height: 800px;
+            overflow: hidden;
+        }
+    }
+</style>
+<div class="print-page">
+    <center>
+        <a class="no-print" href="javascript:window.print()">Imprimir este documento</a>
+        <hr class="no-print">
+    </center>
+{% block body %}{% endblock %}
+</div>

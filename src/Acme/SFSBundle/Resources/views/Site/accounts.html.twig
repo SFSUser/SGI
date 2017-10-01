@@ -1,0 +1,5 @@
+
+{% extends template_parent %}
+{% block component %}  
+    {{render(controller('AcmeSFSBundle:Schema:list', {'bundle': 'SFS', 'entity': 'SFSAccounts', 'conds': {} }))}}
+{% endblock %}

@@ -1,0 +1,159 @@
+{# empty Twig template #}
+<div class="searcher-box">
+    <div id="loader_search_box_{{token}}" style="display: none;">
+        <img src="{{asset('/bundles/acmesfs/img/loading_mini.gif')}}"/> <b>Actualizando información...</b>
+    </div>
+    <div id="preview_search_box_{{token}}">
+    </div>
+    <div class="sty-box-padding-10" id="main_search_box_{{token}}">
+        <div class="input-group">
+            <span id="search_label_{{token}}" class="input-group-addon"><b>{{entity_name}}</b>:</span>
+            <input id="input_search_{{token}}" type="text" class="form-control" placeholder="Buscar por: {% for x in search_in %}{{x}} {% endfor %}">
+            
+            <span class="input-group-btn">
+                <a id="button_search_{{token}}" class="btn btn-info">Buscar</a>
+                <input class="input-group-addon" id="input_search_value_{{token}}" type="text" required="" name="{{name}}"/>
+            </span>
+        </div>
+    </div>
+    <div id="loader2_search_box_{{token}}" style="display: none;">
+        <img src="{{asset('/bundles/acmesfs/img/loading_mini.gif')}}"/> <b>Buscando resultados...</b>
+    </div>
+    <div class="floating-search-box" id="floating_box_{{token}}" style="display: none;">
+    </div>
+</div>
+
+<style>
+    .searcher-box{
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 5px;
+        padding: 5px;
+        margin-bottom: 2px;
+        border-color: gainsboro;
+    }
+    .floating-search-box{
+        max-height: 150px;
+        overflow-y: scroll;
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 5px;
+        padding: 10px;
+        z-index: 100;
+        background-color: white;
+        cursor: pointer;
+    }
+    .floating-search-box > div:hover{
+        background-color: gainsboro;
+    }
+</style>
+<script>
+    var SearchBox_{{token}} = {
+        target_onchange: null,
+        flag_search_items: false,
+        last_search: "none",
+        object_loader_select: "#loader_search_box_{{token}}",
+        object_loader: "#loader2_search_box_{{token}}",
+        object_results: "#floating_box_{{token}}",
+        object_select: "#preview_search_box_{{token}}",
+        object_input: "#input_search_value_{{token}}",
+        object_input_search: "#input_search_{{token}}",
+        object_button: "#button_search_{{token}}",
+        object_label: "#search_label_{{token}}",
+        searchItems: function () {
+            var context = this;
+            if (context.flag_search_items)
+                return;
+            context.flag_search_items = true;
+            var search = $(context.object_input_search).val();
+            context.last_search = search;
+            
+            $(context.object_input_search).val("");
+            //console.log("Search for: " + search);
+            $(context.object_loader).show();
+            $.ajax({
+                url: '{{path('url_search_service')}}',
+                data: {
+                    entity: '{{entity}}',
+                    key: '{{key}}',
+                    search_in:{{search_in|json_encode()|raw}},
+                    search: search
+                },
+                error: function (e) {
+                    console.log(e);
+                   
+                    context.flag_search_items = false;
+                    $(context.object_loader).hide();
+                    $(context.object_results).html("<b>Error al obtener resultados</b>");
+                    $(context.object_results).slideDown();
+                },
+                success: function (r) {
+                    context.flag_search_items = false;
+                    $(context.object_loader).hide();
+
+                    var fb = context.object_results;
+                    $(fb).html(r.html_out);
+                    $(fb).slideDown();
+                    $(fb).children("b").click(function () {
+                        $(fb).hide();
+                    });
+                    $(fb).children("div").click(function () {
+                        $(fb).hide();
+                        var cur_key = $(this).attr("key");
+                        $(context.object_input).val(cur_key).trigger("change");
+                    });
+                }
+            });
+        },
+        previewElement: function (id) {
+            var context = this;
+            $(context.object_select).html("");
+            $(context.object_loader_select).show();
+            $.ajax({
+                url: '{{path('url_search_service')}}',
+                data: {
+                    entity: '{{entity}}',
+                    key: '{{key}}',
+                    id: id
+                },
+                success: function (r) {
+                    if (context.target_onchange !== null) {
+                        context.target_onchange(r.ajax_data);
+                    }
+                    $(context.object_select).html(r.html_out);
+                    $(context.object_loader_select).hide();
+                },
+                error: function () {
+                    $(context.object_loader_select).hide();
+                }
+            });
+        },
+        prepare: function () {
+            var context = this;
+            $(context.object_button).click(function(){
+                //console.log("VLICKED");
+                //console.log(context);
+                context.searchItems();
+            });
+            $(context.object_input).change(function () {
+                //alert("change");
+                context.previewElement($(this).val());
+            });
+            $(context.object_input_search).keypress(function (e) {
+                if (e.which === 13) {
+                    //console.log("KEYPRESS");
+                    //console.log(context);
+                    e.preventDefault();
+                    context.searchItems();
+                }
+            });
+            $(context.object_label).click(function(){
+                $(context.object_results).slideUp();
+            });
+        }
+    };
+    var SearchBox_{{name}} = SearchBox_{{token}};
+    $(function () {
+        SearchBox_{{token}}.prepare();
+    });
+</script>

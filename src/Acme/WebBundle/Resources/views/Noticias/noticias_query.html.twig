@@ -1,0 +1,66 @@
+<div><center>{{buttons|raw}}</center></div>
+<script>
+    $("#grid").gridalicious({
+        gutter: 5,
+        width: 250,
+        animate: true,
+        animationOptions: {
+            speed: 200,
+            duration: 300,
+        }
+    });
+</script>
+<div class="row">
+    {% if data is empty %}
+        <center>
+            <div class="sheet-art sty-box-padding-10">
+                <h2>Lo sentimos</h2>
+                <p>
+                    No se econtraron resultados
+                </p>
+            </div>
+        </center>
+    {% endif %}
+    <div id="grid">
+        {% for item in data %}
+            {#<pre><code>{{dump(item)}}</code></pre>#}
+            {#<div id="CatedralNoticias_element_{{item.id}}" class="media">
+                <a class="pull-left" href="{{path('noticia_url', {id: item.id})}}">
+                    <img class="media-object" src="{{item.imagenes_random.small_square}}" alt="...">
+                </a>
+                <div class="media-body">
+                    <div class="pull-right">
+                        {% render(controller('AcmeSFSBundle:Utils:modify', {bundle: 'Site', entity: 'CatedralNoticias', id: item.id})) %}
+                    </div>     
+                    <h2 class="media-heading"><a href="{{path('noticia_url', {id: item.id})}}">{{item.titulo}}</a> <small title="{{item.fecha_formatted}}">hace {{item.fecha_friendly}}</small></h2>
+                    <p>{{item.descripcion|striptags|slice(0, 300)}}</p>
+                </div>
+            </div>
+            <hr class="featurette-divider">#}
+            <div class="item sheet-art" id="CatedralNoticias_element_{{item.id}}">
+                {#<center>
+                    {% render(controller('AcmeSFSBundle:Utils:modify', {bundle: 'Site', entity: 'CatedralNoticias', id: item.id})) %}
+                </center>#}
+                <div class="sty-box-padding-5">
+                    {% set url = null %}
+                    {% if not item.imagenes_all is empty %} 
+                        {% set url = item.imagenes_random.medium_thumbnail %}
+                    {% elseif item.descripcion_first_media is defined %} 
+                        {% set url = item.descripcion_first_media %}
+                    {% endif %}
+                    {% if not url is null %}
+                        <a href="{{path('noticia_url', {id: item.id})}}"><img width="100%" data-src="{{url}}" src="{{url}}" alt="{{item.titulo}}"></a>
+                    {% endif %}  
+                    <div class="caption">
+                        <h4><a href="{{path('noticia_url', {id: item.id})}}">{{item.titulo}}</a></h4>
+                        <i title="{{item.fecha_formatted}}">Publicado hace {{item.fecha_friendly}}</i>
+                        <p><span class="label label-danger">{{item.categoria}}</span> {{item.contenido|striptags|slice(0, 250)|raw}} - <a href="{{path('noticia_url', {id: item.id})}}">[Leer más]</a></p>
+                        {#<div>
+                            {% render(controller('AcmeSFSBundle:Utils:modify', {bundle: 'Site', entity: 'CatedralNoticias', id: item.id, label: false})) %}
+                        </div>#}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>

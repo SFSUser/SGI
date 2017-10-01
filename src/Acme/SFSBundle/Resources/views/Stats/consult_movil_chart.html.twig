@@ -1,0 +1,50 @@
+
+<script type="text/javascript">
+    // Load the Visualization API and the piechart package.
+    google.load('visualization', '1.0', {'packages':['corechart']});
+    google.setOnLoadCallback(drawChart);
+
+    // Callback that creates and populates a data table,
+    // instantiates the pie chart, passes in the data and
+    // draws it.
+    function drawChart() {
+
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Modelo');
+        data.addColumn('number', 'Slices');
+        data.addRows(JSON.parse('{{values|json_encode()|raw}}'));
+
+        // Set chart options
+        var options = {'title':'Marcas y modelos detectados',
+            'width':400,
+            'height':300};
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(document.getElementById('movil_chart'));
+        chart.draw(data, options);
+    }
+</script>
+<script type='text/javascript'>
+    google.load('visualization', '1', {packages:['table']});
+    google.setOnLoadCallback(drawTable);
+    function drawTable() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Modelo');
+        data.addColumn('string', 'Fabricante');
+        data.addColumn('number', 'Visitantes');
+        //types: booelan, number, string
+        data.addRows(JSON.parse('{{values_1|json_encode()|raw}}'));
+
+        var table = new google.visualization.Table(document.getElementById('table_movil_chart'));
+        table.draw(data, {showRowNumber: true});
+    }
+</script>
+
+<table width="100%">
+    <tr>
+        <td width="400px"><div id="movil_chart"></div></td>
+        <td><div id="table_movil_chart"></div></td>
+    </tr>
+</table>
+

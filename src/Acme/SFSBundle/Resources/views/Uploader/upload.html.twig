@@ -1,0 +1,16 @@
+{# empty Twig template #}
+
+{% for x in data%}
+    <div identifier="{{x.id}}" path="{{x.path}}" date="{{x.date_formatted}}" id="uploaded_item_{{x.id}}" class="file-item">
+        <input type="checkbox" value="{{x.id}}" class="pull-left checkable"/>
+        <img class="sty-box-margin-5 pull-left" src="http://cdn.webiconset.com/file-type-icons/images/icons/{{x.extension|lower}}.png"/>
+
+        <button target="_blank" onclick="UploaderInterface_{{x.identifier}}.removeUploadedFile({{x.id}})" class="btn btn-danger pull-right sty-box-margin-left-5">Eliminar</button>
+        <a href="#" download="{{x.path}}"  class="btn btn-info pull-right">Descargar</a>
+        <div style="display: inline-block;margin-left: 10px;" class="pull-left">
+            <span class="sty-font-median">{{x.original}}</span> <i>{{x.identifier}}</i><br>
+            <span>Subido hace {{x.date_friendly}}</span><br>
+            <span>Tamaño: {{x.size}}</span>
+        </div>
+    </div>
+{% endfor %}

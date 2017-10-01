@@ -1,0 +1,70 @@
+{# empty Twig template #}
+<div>
+    {% if data %}
+        <h2>
+            <button onclick="toggleMSGView(false);" class="btn btn-danger">Volver</button>
+            <b class="label label-info">{{data.categoria}}</b>
+            {{data.titulo|raw}}
+        </h2>
+        <span>Hace {{data.fecha_friendly}}</span>
+        <hr>
+        <div class="fixer" style="background-color: gainsboro;border-radius: 5px;padding: 10px;">
+            {{data.contenido|raw}}
+            {% if files is not empty %}
+                <hr/>
+                <span class="sty-label-blue">Archivos adjuntos a este mensaje:</span>
+                {% for y in files%}
+                    <div>
+                        <img height="15" src="http://cdn.webiconset.com/file-type-icons/images/icons/{{y.extension}}.png"/>
+                        <b class="sty-label-green">[{{y.extension}}]</b>
+                        <a download="{{y.original}}" href="{{y.path}}"> {{y.original}}</a><br>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <hr/>
+            <center>
+                <span class="sty-label-gray">Marcar este mensaje como:</span>
+                <select id="state_selector" onloadstart="alert()" onchange="changeState()">
+                    <option value="0">Sin leer</option>
+                    <option value="1">Leido</option>
+                    <option value="2">Respondido</option>
+                    <option value="3">Descartado</option>
+                </select>
+            </center>
+            <script>document.getElementById('state_selector').value = '{{data.estado}}';</script>
+        </div>
+
+    {% else %}
+        <h2><button onclick="toggleMSGView(false);" class="btn btn-info">Volver</button> El mensaje ya no existe.</h2>
+    {% endif %}
+</div>
+<script>
+    function changeState() {
+        var element = $("#state_selector");
+        var state = $(element).val();
+        setElementDisableState(element, false);
+        $.ajax({
+            url: '{{path('get_contact')}}',
+            data: {
+                id: '{{data.id}}',
+                state: state,
+                json: true
+            },
+            success: function (r) {
+                console.log(r);
+                setElementDisableState(element, true);
+                $(element).val(r.data.estado);
+                console.log(r.data.estado);
+            }
+        });
+    }
+</script>
+<div>
+    {{render(controller('AcmeSFSBundle:Mail:form', {}))}}
+</div>
+<script>
+    ContactForm.successCallBack = function (e) {
+        $("#state_selector").val(2);
+        changeState();
+    };
+</script>

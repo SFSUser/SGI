@@ -1,0 +1,9 @@
+{# empty Twig template #}
+{% extends template_parent %}
+{% block title %}
+    Editor
+{% endblock %}
+{% block body %}
+    <h2>Editor</h2>
+    {% block component %} {{ parent() }}{% endblock %}
+{% endblock %}

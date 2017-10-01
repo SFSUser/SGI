@@ -1,0 +1,172 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 9/03/2015, 03:19:17 PM
+    Author     : SFS
+
+Gray:   #9E9E9E
+Orange: #EC842F
+Dark:   #B47646
+
+*/
+.www-home-section{
+    background-color: #ff9900;
+    padding: 20px;
+    //margin-bottom: 20px;
+    color: white;
+}
+
+.www-gallery-slider{
+    background-size: cover;
+    min-height: 300px;
+    overflow: auto;
+}
+.www-gallery-title{
+    text-shadow: 2px 2px rgba(0,0,0,0.7);
+}
+.www-gallery-text{
+    text-align: left;
+    white-space: normal;
+    background: white;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 20px;
+    opacity: 0.9;
+
+}
+.www-foot{
+    background-color: white;
+    color: ff9900;
+    font-size: 20px;
+    bottom: 0;
+    min-height: 100px;
+    overflow: auto;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.www-header{
+    background-color: orange;
+    background-size: cover;
+    background-image: url(http://i.imgur.com/alh2M75.jpg);
+}
+
+.www-header .logo{
+    border-style: solid;
+    border-color: #ff9900;
+    border-width: 0 5px 5px 0;
+    opacity: 0.9;
+    min-width: 430px;
+    background-color: white;
+    border-radius: 0 0 100px 0;
+    margin-right: 75%;
+    padding: 20px;
+    //margin-bottom: 20px;
+}
+.fixer{
+    width: 900px;
+    margin: 10px auto 50px auto;
+}
+
+body{
+    background-color: #f6eeee;
+}
+/*
+position: fixed;
+top: 0;
+*/
+.www-menu{
+    z-index: 100;
+    color: #B47646;
+    width: 100%;
+    opacity: 0.9;
+    font-size: 20px;
+    overflow: initial;
+    position: relative;
+    background-color: #f6eeee;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    
+    border-bottom: solid;
+    border-bottom-color: orange;
+    border-width: 1px;
+}
+.www-menu{
+    position: absolute;
+}
+.www-menu-float{
+    position: fixed;
+    top: 0;
+}
+.www-menu li{
+    margin: 0;
+    padding: 0;
+    display: block;
+    position: relative;
+    float: left;
+}
+.www-menu a{
+    width: 100%;
+    display: block;
+    color: gray;
+    display: inline-block;
+    padding: 10px 15px 10px 15px;
+    text-decoration: none;
+}
+
+.www-menu a:hover, .www-menu-active{
+    color: orange;
+    background-color: gainsboro;
+}
+.www-menu li:hover> ul{
+    display: block;
+}
+.www-menu>li>ul{
+    white-space: nowrap;
+    display: none;
+    background-color: white;
+    border-color: orange;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 7px;
+
+    z-index: 100;
+    margin: 0;
+    position: absolute;
+    float: left;
+    width: auto;
+    padding: 0;
+}
+
+.www-menu>li>ul>li{
+    font-size: 17px;
+    display: inline-block;
+    width: 100%;
+}
+.www-menu-divider{
+    border-color: orange;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 7px;
+}
+@media all and (max-width: 500px) {
+    .www-menu {
+        overflow: hidden;
+        height: auto;
+        position: relative;
+        background-color: white;
+    }
+    .www-menu li{
+        display: inline-block;
+        width: 100%;
+    }
+    .www-menu ul{
+        float: none;
+        height: auto;
+        position: initial;
+    }
+}

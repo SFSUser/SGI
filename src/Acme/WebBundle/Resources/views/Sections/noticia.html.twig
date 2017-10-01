@@ -1,0 +1,49 @@
+{% extends "AcmeWebBundle:Default:base.html.twig" %}
+{% block title %}
+    {{data.titulo}}
+{% endblock %}
+{% block component %}  
+    <link href="{{asset('/bundles/acmesfs/plugins/fotorama/fotorama.css')}}" rel="stylesheet">
+    <script src="{{asset('/bundles/acmesfs/plugins/fotorama/fotorama.js')}}"></script>
+
+    <div class="page-header">
+        <a class="btn btn-danger pull-right" href="{{path('noticias_url')}}">Más noticias</a>
+        <h2>{{data.titulo}}</h2>
+        <span class="label label-danger">{{data.categoria}}</span> {{data.fecha_formatted}} - <span  title="{{data.fecha_formatted}}">hace {{data.fecha_friendly}}</span>
+        <div class="pull-right">
+            {% render(controller('AcmeSFSBundle:Utils:modify', {bundle: 'SFS', entity: 'SFSNoticias', id: data.id})) %}
+        </div>
+    </div>
+
+    {% if not data.imagenes_all is empty%}
+        <center>
+            <div class="fotorama sh" data-width="700" data-ratio="700/467" data-max-width="100%"  data-nav="thumbs">
+                {% for imagen in data.imagenes_all %}
+                    {#<meta property="og:image" content="{{imagen.original}}" />#}
+                    <img style="width:100%" alt="{{data.titulo}}" src="{{imagen.original}}">
+                {% endfor %}
+            </div>
+        </center>
+        <hr class="featurette-divider"/>
+    {% endif %}
+    <div class="segment-content">{{data.contenido|raw}}</div>
+    <hr class="featurette-divider"/>
+    <b>Visitas: </b> <span>{{data.visitas}}</span>
+    <b>Tags: </b> 
+    {% for x in data.tags_array %}
+        <span class="label label-default">{{x}}</span>
+    {% endfor %}
+    
+    
+    <div class="sty-box-overflow-auto">
+        <div class="pull-right">
+            {{render(controller('AcmeSFSBundle:Utils:social', 
+{'share_link': app.request.getUri(), 'site_link':app.request.getHost(),'description':data.titulo}
+))}}
+        </div>
+    </div>
+    <hr class="featurette-divider"/>
+    <div>
+        {{render(controller('AcmeSFSBundle:Utils:facebookcomments', {url: path('noticia_url', {id: data.id})}))}}
+    </div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{# empty Twig template #}
+
+{% set hostname = 'http://' ~ app.request.getHost() %}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url><loc>{{hostname}}{{path('url_main')}}</loc></url>
+    <url><loc>{{hostname}}{{path('noticias_url')}}</loc></url>
+    <url><loc>{{hostname}}{{path('contacto_url')}}</loc></url>
+    {% for key, item in sitemap %}
+        {% for x in item %}
+            <url><loc>{{hostname}}{{path(key, {id: x.id})}}_{{x.titulo}}.html</loc></url>
+        {% endfor %}
+    {% endfor %}
+</urlset>

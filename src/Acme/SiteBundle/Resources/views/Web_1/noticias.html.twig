@@ -1,0 +1,9 @@
+{# empty Twig template #}
+{% extends template_parent %}
+{% block title %}
+    Noticias
+{% endblock %}
+{% block body %}
+    <h2>Noticias</h2>
+    {% block component %} {{ parent() }}{% endblock %}
+{% endblock %}

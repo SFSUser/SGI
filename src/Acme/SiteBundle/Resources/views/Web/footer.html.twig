@@ -1,0 +1,48 @@
+{# empty Twig template #}
+<div class="www-foot">
+    <div class="col-md-2" style="padding: 10px;text-align: center;">
+        <img height="100px" src="{{asset('/img/logo.png')}}"/>
+    </div>
+    <div class="col-md-10" style="background-color: #ff9900;border-radius:  70px  0 0 70px;color:white">
+        <div class="sty-box-padding-10">
+            <div class="sty-box-overflow-auto">
+                <div class="col-md-3">
+                    <ul>
+                        <li><a href="{{path('url_main')}}" class="sty-label-white">Inicio</a></li>
+                        <li><a href="{{path('acerca_url')}}" class="sty-label-white">Acerca de nosotros</a></li>
+                        <li><a href="{{path('portafolio_url')}}" class="sty-label-white">Servicios</a></li>
+                        <li><a href="{{path('noticias_url')}}" class="sty-label-white">Noticias</a></li>
+                        {#<li><a href="{{path('url_cotizacion')}}" class="sty-label-white">Cotización online</a></li>#}
+                        <li><a href="{#{path('url_contacto')}#}" class="sty-label-white">Contactenos</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-5">
+                    <ul style="font-size: 20px;">
+                        <li>Telefonos: {{render(controller('AcmeSFSBundle:Segment:index',{identifier:'IPSCDOTelefono', type: 'text'}))}}</li>
+                        <li>Celulares: {{render(controller('AcmeSFSBundle:Segment:index',{identifier:'IPSCDOCelulares', type: 'text'}))}}</li>
+                        <li>Direccion: {{render(controller('AcmeSFSBundle:Segment:index',{identifier:'IPSCDODireccion', type: 'text'}))}}</li>
+                        <li>Correo: {{render(controller('AcmeSFSBundle:Segment:index',{identifier:'IPSCDOCorreo', type: 'text'}))}}</li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h3 class="sty-label-white">Horarios de atención</h3>
+                    <div style="padding-left: 20px;">
+                        {{render(controller('AcmeSFSBundle:Segment:index',{identifier:'IPSCDOHorarios', type: 'textarea'}))}}
+                    </div>
+                    {#
+                    <div class="sty-box-padding-10">
+                        <div class="www-textbox sty-box-text-center">
+                            <img style="display: inline-block" width="100%" src="/img/logo_completo.png"/>
+                        </div>
+                    </div>#}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="www-foot-sec sty-box-text-center">
+        Desarrollado por 
+        <img align="top" width="18px" height="18px" src="/bundles/acmesfs/img/logo_sfs.png">
+        <a target="_blank" href="http://sfssoft-sfsuser.rhcloud.com/" class="sty-text-main sty-font-small sty-label" style="color: blue;">SFSSoft</a>
+        <a href="{{path('adminlogin')}}" class="sty-label-blue"> Admin</a>
+    </div>
+</div>

@@ -1,0 +1,69 @@
+<script type="text/javascript">
+    $(function() {
+        $("#login_username, #login_password").keyup(function(event) {
+            if (event.keyCode == 13) {
+                loginUser();
+            }
+        });
+    });
+    function loginUser() {
+        var user = $("#login_username").val();
+        var pass = $("#login_password").val();
+        var logged = $("#keep_login").attr("checked") != null;
+        if (user == "") {
+            showMessage("Ingrese el nombre de usuario o correo.", "login_action_message", "error", "");
+            return;
+        }
+        if (pass == "") {
+            showMessage("Ingrese la contraseña.", "login_action_message", "error", "");
+            return;
+        }
+
+        var data = "";
+        data += "&user=" + user;
+        data += "&password=" + pass;
+        data += "&logged=" + logged;
+        setElementDisableState("#login_user_button", false);
+        executeCall("{{ path('user_login_action') }}", data, function(data) {
+            setElementDisableState("#login_user_button", true);
+            console.log(data);
+            switch (data["result"]) {
+                case 2:
+                    showMessage("El usuario no existe.", "login_action_message", "error", "");
+                    break;
+                case 1:
+                    console.log("Sea ha iniaciado sesión.")
+                    //alert("Se inicio sesion");
+                    redirectTo("{{onlogin}}");
+                    break;
+                case 0:
+                    showMessage("La contraseña o el nombre de usuario es incorrecta.", "login_action_message", "error", "");
+                    $("#password").val("");
+                    break;
+            }
+        });
+    }
+</script>
+<style type="text/css">
+    #login_box{
+        padding: 10px;
+        max-width: 300px;
+    }
+    #login_bar{
+        padding: 10px;
+        max-width: 300px;
+    }
+</style>
+<div id="login_box" class="sty-box-smuth sty-box-text-center">
+    <span class="sty-label-blue">Nombre de usuario o E-Mail</span>
+    <input class="input-text-radius" name="username" id="login_username" type="text">
+    <span class="sty-label-blue">Contraseña</span>
+    <input class="input-text-radius" name="password" id="login_password" type="password">
+    <div id="login_action_message"></div>
+    <input id="keep_login" name="keep_loggin" type="checkbox"/>
+    <label class="sty-label-blue" for="keep_login">No cerrar sesión</label>
+    <hr/>
+    <button onclick="loginUser()" style="font-size: 20px;" id="login_user_button" class="button">Iniciar sesión</button>
+    <hr/>
+    <span class="sty-label-blue">¿No estás registrado?<br/>Puedes <a class="sty-label-orange" href="{{register}}">registrarte aquí</a>.</span>
+</div>

@@ -1,0 +1,5 @@
+{% extends template_parent %}
+
+{% block list %}
+    {{render(controller('AcmeSFSBundle:Schema:list', {'bundle': bundle, 'entity': entity}))}}
+{% endblock %}

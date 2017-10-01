@@ -1,0 +1,23 @@
+{# empty Twig template #}
+<div class="sheet-art sty-box-padding-5 sty-box-margin-bottom-10">
+    {{render(controller('AcmeSFSBundle:Segment:index',{identifier:'IPSCDOSidebar', type: 'textarea'}))}}
+</div>
+<div class="sheet-art sty-box-padding-10 sty-box-text-center layout-responsive-desktop">
+    <span class="sty-font-20">Síguenos en Facebook</span>
+    <hr class="featurette-divider">
+    <center>
+        <div>
+            <div class="fb-like-box" data-width="100%" data-href="https://www.facebook.com/1574266649526178" data-colorscheme="light" data-show-faces="true" data-header="true" data-stream="false" data-show-border="true"></div>
+            <div id="fb-root"></div>
+            <script>(function (d, s, id) {
+                    var js, fjs = d.getElementsByTagName(s)[0];
+                    if (d.getElementById(id))
+                        return;
+                    js = d.createElement(s);
+                    js.id = id;
+                    js.src = "//connect.facebook.net/es_LA/sdk.js#xfbml=1&appId=641444865880778&version=v2.0";
+                    fjs.parentNode.insertBefore(js, fjs);
+                }(document, 'script', 'facebook-jssdk'));</script>
+        </div>
+    </center>
+</div>

@@ -1,0 +1,11 @@
+{# empty Twig template #}
+{% if is_granted('ROLE_ADMIN') %}
+<div>
+    <a class="button" href="{{path('add_editor', {bundle: bundle, entity: entity, redirect: redirect, id: id})}}">
+        <img style="width:16px" src="{{asset('bundles/acmesfs/img_icons/edit.png')}}" align="top"/>{% if label is defined %} Editar{% endif %}
+    </a>
+    <button class="button" onclick="removeEntityElement('{{path('remove_editor')}}', 'Acme{{bundle}}Bundle:{{entity}}', {{id}}, '#{{entity}}_element_{{id}}', '{% if redirect is defined %}{{redirect}}{% else %}/{% endif %}{#{{redirect_url}}#}')">
+        <img style="width:16px" src="{{asset('bundles/acmesfs/img_icons/remove.png')}}" align="top"/>{% if label is defined %} Eliminar{% endif %}
+    </button>
+</div>
+{% endif %}

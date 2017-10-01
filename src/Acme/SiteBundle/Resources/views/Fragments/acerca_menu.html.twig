@@ -1,0 +1,8 @@
+{# empty Twig template #}
+{% if data is not empty %}
+    <ul>
+        {% for x in data %}
+            <li><a href="{{path('acerca_id_url', {id: x.id})}}">{{x.titulo}}</a></li>
+        {% endfor %}
+    </ul>
+{% endif %}

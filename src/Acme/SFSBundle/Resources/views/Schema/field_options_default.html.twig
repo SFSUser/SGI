@@ -1,0 +1,8 @@
+{# empty Twig template #}
+{% for y, z in data %}
+    <option
+        {% set cur_ind = loop.index - 1 %}
+        
+        {% if ("com_" ~ y) != ("com_" ~ cur_ind) %}value="{{y}}"{% endif %}
+         label="{{z}}">{{z}}</option>
+{% endfor %}

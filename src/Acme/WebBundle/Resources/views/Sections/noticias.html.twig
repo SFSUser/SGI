@@ -1,0 +1,85 @@
+{% extends "AcmeWebBundle:Default:base.html.twig" %}
+{% block component %}  
+    <script src="{{asset('/bundles/acmesfs/plugins/GridALicious/jquery.grid-a-licious.min.js')}}"></script>
+    <script>
+        var categoria = "{{app.request.get('category')}}";
+        var find = "{{app.request.get('find')}}";
+        var page = 1;
+        $(function() {
+            //$(".cats:first").click();
+            reload();
+            $("#finder").submit(function(e) {
+                e.preventDefault();
+                find = $("#find_input").val();
+                reload();
+            });
+        });
+
+        function getListPage(id) {
+            page = id;
+            reload();
+        }
+
+        function setCategory(cat) {
+            categoria = $(cat).attr("tag");
+            $(".cats").removeClass("active");
+            $(cat).addClass("active");
+            reload();
+        }
+        function reload() {
+            $("#loading").show();
+            $("#noticias_container").css("opacity", "0.5");
+            $.ajax({
+                data: {
+                    category: categoria,
+                    find: find,
+                    paginator_page: page,
+                    paginator_count: 30
+                },
+                url: '{{path('ajax_noticias_url')}}',
+                type: 'post',
+                success: function(d) {
+                    $("#noticias_container").html(d);
+                    $("#loading").hide();
+                    $("#noticias_container").css("opacity", "1");
+                },
+                error: function(d) {
+                    $("#noticias_container").css("opacity", "1");
+                }
+            });
+        }
+    </script>
+    <div class="sty-box-overflow-auto sty-box-margin-top-10">
+        <div class="col-md-3">
+            <div>
+                <form id="finder" action="{{path('noticias_url')}}" role="search">
+                    <div class="input-group">
+                        <input id="find_input" placeholder="Escriba el texto a buscar..." name="find" type="text" value="{{app.request.get('find')}}" class="form-control">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="submit">Buscar</button>
+                        </span> 
+                    </div>
+                    <!-- /input-group -->
+                </form>
+            </div>
+            <div class="list-group sty-box-margin-top-5">
+                <a onclick="setCategory(this)" tag="" class="cats list-group-item {% if "" == app.request.get('category') %}active{% endif %}">Todas las noticias</a>
+                {% for item in data %}
+                    <a identifier="{{item|replace({'% %':'_'})}}" onclick="setCategory(this)" tag="{{item}}" class="cats list-group-item {% if item == app.request.get('category') %}active{% endif %}">{{item}}</a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div id="loading" class="sheet-art sty-box-padding-5 sty-box-margin-bottom-10">
+                <div>
+                    <center>
+                        <img src="{{asset('bundles/acmesfs/img/loading.gif')}}"/>
+                        <h3>Buscando noticias....</h3>
+                        <p>Por favor, espere los resultados.</p>
+                    </center>
+                </div>
+            </div>
+            <div id="noticias_container"></div>
+        </div>
+    </div>
+{% endblock %}

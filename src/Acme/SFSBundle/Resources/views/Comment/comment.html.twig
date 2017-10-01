@@ -1,0 +1,43 @@
+<div id="comment_{{id}}" reply_comment="{{respuesta}}">
+    <div class="comment-box" style="{{ (modo == "admin") ? "background-color:#F2F9FF;" : "" }}">
+        <div class="sty-box-padding-10">     
+            <div style="height: 27px;" id="comment_title" class="sty-box-floatcontainer">
+                <div class="sty-float-left">         
+                    <span class="sty-label-blue sty-font-20"><span title="#{{id}} {{admin ? correo:""}}" class="sty-label-hover-blue">#</span>{{usuario}} </span>
+                    <span class="sty-font-small sty-label-gray">
+                        <span title="{{fecha|date('d-m-y')}}" class="sty-label-hover-blue"> hace {{fecha_amigable}}</span>
+                        (Votos: <span id="comment_vote_{{id}}"  title="{{ "+" + num_gustan}} / {{ "-" + num_nogustan}}" style="{{votos_color}}">{{total_votos}}</span>)
+
+                    </span>
+                </div>
+                <div style="margin: 6px 0 0 5px;" class="sty-float-left actions-buttons">
+                    <i title="Me gusta" onclick="commentVote(1, {{id}}, this)" class="icon thumb-up"></i>
+                    <i title="No me gusta" onclick="commentVote(-1, {{id}}, this)" class="icon thumb-down"></i>
+                    <a  href="#comment_bar">
+                        <a title="Responder comentario" href="javascript:responseComment({{id}})"><img width="14px" height="14px" align="top" src="/img_icons/forum.png"/></a>
+                    </a>
+                    <a href="#comment_bar">
+                        <a title="Citar comentario" href="javascript:citeComment('{{usuario}}', {{id}})"><img width="14px" height="14px" align="top" src="/img_icons/about.png"/></a>
+                    </a>
+                    {% if(admin or is_granted('ROLE_ADMIN')) %}
+                    <a title="Eliminar comentario" href="javascript:removeComment({{id}})"><img width="14px" height="14px" align="top" src="/img_icons/remove.png"/></a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="comment-content sty-box-padding-10 sty-label-gray">{{contenido|raw}}</div>
+            {%if (response_count > 0)%}
+            <div id="comment_show_responses_{{id}}" class="sty-box-text-center sty-font-small comment-responses" style="padding: 10px;">
+                <a class="sty-label-blue sty-box-dotted sty-box-radius-5" style="padding: 5px;background-color: #FAFFFF;" href="javascript:attachAntComment({{response_id}}, {{id}})">Mostrar respuestas anteriores (<span id="comment_responses_count_{{id}}">{{response_count}}</span>)</a>
+            </div>
+            {%endif%}
+        </div>
+    </div>       
+    <div style="margin-left: 40px;">
+        <div id="response_container_{{id}}" style="display: block;">
+            {% for comment in responses %}
+                {{include('AcmeSFSBundle:Comment:comment.html.twig',comment) }}
+            {% endfor %}
+        </div>
+        <div id="comment_container_{{id}}"></div>
+    </div>
+</div>

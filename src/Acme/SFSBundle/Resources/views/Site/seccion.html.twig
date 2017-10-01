@@ -1,0 +1,23 @@
+
+{% extends template_parent %}
+{% block component %}  
+    {% if data %}
+        <div class="sty-box-overflow-auto">
+            <div class="pull-right">
+                {% render(controller('AcmeSFSBundle:Utils:modify', {bundle: 'SFS', entity: 'SFSSeccion', id: data.id})) %}
+            </div>
+        </div>
+        <div class="segment-content">
+            {{data.contenido|raw}}
+        </div>
+    {% endif %}
+    {% if not data %}
+        <center>
+            <h2 class="sty-label-blue">Esta sección aún no esta disponible</h2>
+            {% if is_granted('ROLE_ADMIN') %}
+                <a class="button" href="{{path('add_editor', {indentificador: identificador, bundle: 'SFS', entity: 'SFSSeccion'})}}">Crearla ahora mismo</a>
+            {% endif %}
+        </center>
+    {% endif %}
+
+{% endblock %}

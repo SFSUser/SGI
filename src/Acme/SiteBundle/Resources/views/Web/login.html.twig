@@ -1,0 +1,10 @@
+{# empty Twig template #}
+{% extends template_parent %}
+{% block title %}
+    Login
+{% endblock %}
+{% block body %}
+    <div class="sheet-art fixer sty-box-padding-10">
+        {% block component %} {{ parent() }}{% endblock %}
+    </div>
+{% endblock %}

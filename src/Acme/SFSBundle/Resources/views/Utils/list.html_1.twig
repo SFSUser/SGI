@@ -1,0 +1,73 @@
+{% extends template_parent %}
+
+{% block list %}
+
+    <style>
+        .list-table{
+            width: 100%;
+            border-radius: 7px;
+            border-width: 1px;
+            border-style: solid;
+            border-color: graytext;
+            overflow: hidden;
+        }
+        .list-table td, .list-table th {
+            border: 1px solid gainsboro;
+        }
+        .list-table td{
+            max-width: 100%;
+            padding: 5px;
+        }
+        
+        .list-table tr:nth-child(even), .list-table tr:hover{
+            background-color: whitesmoke;
+        }
+
+        .list-table th {
+            padding: 5px;
+            background-color: grey;
+            color: white;
+        }
+    </style>
+    <script>
+        function getListPage(index) {
+            location.href = "?paginator_page=" + index;
+        }
+    </script>
+    <center>
+        <span class="sty-font-20">Actualmente esta visualizando los datos de la tabla <i class="sty-label-blue">"{{space_name}}"</i></span>
+        <a class="button" href="{{ path("add_editor", {bundle: bundle, entity: entity}) }}"><img src="/bundles/acmesfs/img_icons/add.png" align="top"> Crear nuevo elemento</a>
+        <hr>
+        {% if data is empty %}
+            <h2>No hay elementos para mostrar, puedes <a href="{{ path("add_editor", {bundle: bundle, entity: entity}) }}">crear uno nuevo</a></h2>
+        {% endif %}
+        {% if not data is empty %}
+            {{buttons|raw}}
+            <table class="list-table">
+                {% for x in data %}
+                    {% if loop.index == 1%}
+                        <tr>
+                            {% for y in x.columns %}
+                                {% if loop.index < 8%} 
+                                    <th>{{y.column_name|capitalize}}</th>
+                                    {% endif %}
+                                {% endfor %}
+                            <th>Opciones</th>
+                        </tr>
+                    {% endif %}
+                    <tr id="{{entity}}_element_{{x.id}}">
+                        {% for y in x.columns %}
+                            {% if loop.index < 8 %} 
+                                <td>{{y.list_formatted|raw}}</td>
+                            {% endif %}
+                        {% endfor %}
+                        <td style="text-align: center;">
+                            {% render(controller('AcmeSFSBundle:Utils:modify', {bundle: bundle, entity: entity, id: x.id})) %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+            {{buttons|raw}}
+        {% endif %}
+    </center>
+{% endblock %}

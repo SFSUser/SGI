@@ -1,0 +1,274 @@
+{# empty Twig template #}
+<div {{title_desc}} id="image_uploader_{{identifier}}" style="background-color: white;" class="sty-box-padding-5 sty-box-margin-5 sty-box-radius-5 sty-box-dotted">
+    <script type="text/javascript" id="script_uploader_{{identifier}}">
+        /*
+         * IMPORTANTE: 
+         * 
+         * De forma predeterminada los navegadores no dejan subir imagenes
+         * desde javascript a los servidores, por ello toca iniciar el navegador
+         * con el modificador siguiente (Chrome):
+         * 
+         * --disable-web-security
+         * 
+         */
+
+        var Resource_{{section_js}} = {
+            last_uploaded: -1,
+            multiple: {{multiple}},
+            drop_detail: null,
+            upload_detail: null,
+            counter: 0,
+            elements: 0,
+            image_data: [],
+            input: null,
+            setInput: function(id) {
+                this.input = document.getElementById(id);
+            }, 
+            loadInput: function() {
+                if (this.input == null) {
+                    return;
+                }
+                var code = $(this.input).val();
+                try{
+                    if(code.charAt(0) !== "["){
+                        code = "[" + code + "]";
+                    }
+                    this.image_data = JSON.parse(code);
+                }catch(e){
+                    this.image_data = [];
+                    console.log("No input-data loaded: " + code);
+                }
+                this.saveInput();
+                //if(this.image_data.push === undefined){
+                //    this.image_data = [this.image_data];
+                //}
+                this.preLoadImages();
+            }, 
+            saveInput: function() {
+                if (this.input == null) {
+                    return;
+                }
+                var code = JSON.stringify(this.image_data);
+                $(this.input).val(code);
+            },
+            load: function() {
+                this.image_data = {{resources|raw}};
+                if (this.multiple) {
+                    document.getElementById("{{section_js}}drop_box").ondragover = function(e) {
+                        e.preventDefault();
+                    };
+                    document.getElementById("{{section_js}}drop_box").ondrop = function(e) {
+                        e.preventDefault();
+                        
+                        var files = drop_detail = e.dataTransfer.files;
+                        var urls = drop_detail = e.dataTransfer.getData("URL");
+                        console.log(urls)
+                        Resource_{{section_js}}.setToUpload(files);
+                        Resource_{{section_js}}.setToUpload(urls);
+                    };
+                }
+
+                //this.preLoadImages();
+            },
+            setToUpload: function(files) {
+                if(typeof(files) == "string"){
+                    this.upload(files);
+                    return;
+                }
+                for (var x = 0; x <= (files.length - 1); x++) {
+                    this.upload(files[x]);
+                }
+            },
+            preLoadImages: function() {
+                for (var x in this.image_data) {
+                    var val = this.image_data[x];
+                    if(x == null || val == null){
+                        continue;
+                    }
+                    if(x === undefined || val.upload === undefined){
+                        continue;
+                    }
+                    
+                    var index = parseInt(x);
+                    if(index > this.counter){
+                        this.counter = index;
+                    }
+                    
+                    
+                    if (Resource_{{section_js}}.multiple) {
+                        this.createMin(x, true);
+                        $("#{{section_js}}image_" + x).attr("src", val.upload.links.small_square);
+                        $("#{{section_js}}image_link_" + x).attr("href", val.upload.links.original);
+                        this.setGoodLoad(x);
+                    } else {
+                        this.last_uploaded = x;
+                        $("#{{section_js}}image_original_-1").attr("src", val.upload.links.original);
+                        $("#{{section_js}}image_-1").attr("src", val.upload.links.small_square);
+                        this.setGoodLoad(-1);
+                    }
+                }
+            },
+            upload: function(file) {
+                /* Is the file an image? */
+                console.log(file);
+                if(!file || (typeof(file) != "string" &&  !file.type.match(/image.*/))){
+                    return;
+                }
+                var id = this.addImage(false);
+                var image = document.getElementById("{{section_js}}image_" + id);
+                var image_link = document.getElementById("{{section_js}}image_link_" + id);
+                var progress_bar = document.getElementById("{{section_js}}progress_" + id);
+                if (!this.multiple) {
+                    $(image).attr("src", "{{ asset('bundles/acmesfs/img/loading.gif') }}");
+                }
+
+                /* It is! */
+                //document.body.className = "uploading";
+                /* Lets build a FormData object*/
+                var fd = new FormData(); // I wrote about it: https://hacks.mozilla.org/2011/01/how-to-develop-a-html5-image-uploader/
+                fd.append("image", file); // Append the file
+                fd.append("key", "6528448c258cff474ca9701c5bab6927"); // Get your own key http://api.imgur.com/
+                var xhr = new XMLHttpRequest(); // Create the XHR (Cross-Domain XHR FTW!!!) Thank you sooooo much imgur.com
+                xhr.upload.onprogress = function(D) {
+                    $(progress_bar).val(D.loaded / D.total);
+                }; //.closure(this);
+                xhr.open("POST", "http://api.imgur.com/2/upload.json"); // Boooom!
+
+                xhr.onload = function() {
+                    // Big win!
+                    var values = this.upload_detail = JSON.parse(xhr.responseText);
+                    Resource_{{section_js}}.image_data.push(values);
+                    //$("#json").html(xhr.responseText);
+
+                    $("#{{section_js}}image_original_" + id).attr("src", values.upload.links.original);
+                    $(image).attr("src", values.upload.links.small_square);
+                    $(image_link).attr("href", values.upload.links.original);
+                    Resource_{{section_js}}.setGoodLoad(id);
+                    Resource_{{section_js}}.saveInput();
+                };
+                xhr.send(fd);
+            },
+            setBadLoad: function(id) {
+                $("#{{section_js}}min_" + id).css("background-color", "#FFE9E4");
+            },
+            setGoodLoad: function(id) {
+                $("#{{section_js}}min_" + id).css("background-color", "#F4FFF9");
+            },
+            changeId: function(old, newest) {
+                $("#{{section_js}}min_" + old).attr("id", "{{section_js}}min_" + newest);
+                $("#{{section_js}}min_close_" + old).attr("onclick", "Resource_{{section_js}}.removeMin(" + newest + ")");
+            },
+            removeAll: function() {
+                $('a[id^={{section_js}}min_close_]').each(function() {
+                    $(this).click();
+                });
+            },
+            removeMin: function(id) {
+                --this.elements;
+                //var data = image_data[id];
+                //var url = data.upload.links.delete_page;
+                delete this.image_data[id];
+                Resource_{{section_js}}.saveInput();
+
+                if (this.multiple) {
+                    removeElement("#{{section_js}}min_" + id);
+                }
+            },
+            imageClick: function(id) {
+                var url = $("#{{section_js}}image_link_" + id).attr("href");
+                //if (this.image_click_action) {
+                var win = window.open(url, '_blank');
+                win.focus();
+                //} else {
+                //    imageClickAction(url);
+                //}
+            },
+            uploadClick: function() {
+                document.getElementById('{{section_js}}upload_button').click();
+            },
+            addImage: function(state) {
+                if (!this.multiple) {
+                    return -1;
+                }
+                ++this.elements;
+                ++this.counter;
+                var id = this.counter;
+                this.createMin(id, state);
+                return id;
+            },checkHealth:function(data){
+                
+            },
+            createMin: function(id, state) {
+                console.log("creating: " + id);
+                /*http://i.stack.imgur.com/R7QBbm.jpg*/
+                /*http://i.stack.imgur.com/R7QBb<medium>.jpg*/
+                var params = {"id": id};
+                var element = document.createElement("div");
+                $(element).html(proccessTemplate("#{{section_js}}image_min_template", params));
+                $(element).children("#{{section_js}}min_" + id).appendTo($("#{{section_js}}image_container"));
+                if (state) {
+                    $("#{{section_js}}progress_" + id).val(1);
+                }
+            }
+        };
+        /* Drag'n drop stuff */
+
+        /*Cargar imágenes de la lista anterior*/
+        //window.onload = function(){
+        $(function() {
+                Resource_{{section_js}}.load();
+                
+                Resource_{{section_js}}.setInput("{{name}}");
+                Resource_{{section_js}}.loadInput();
+                
+                //Vigilar los cambios
+                $("#{{name}}").change(function(){
+                    Resource_{{section_js}}.setInput("{{name}}");
+                    Resource_{{section_js}}.loadInput();
+                });
+                
+                $("#{{form}}").submit(function(event) {
+                    Resource_{{section_js}}.saveInput();
+                    return true;
+                });
+         });
+       // }
+    </script>
+    <style type="text/css">
+        .preview-container {
+            overflow: hidden;
+        }
+        .image-min-box{
+            width: 110px;
+            height: 121px;
+            overflow: hidden;
+        }
+    </style>
+    <script type="text/html" id="{{section_js}}image_min_template">
+        <div id="{{section_js}}min_<%=id%>" class="image-min-box sty-float-left sty-box-padding-10 sty-box-dotted sty-box-radius-5 sty-box-margin-5" style="background-color:white;">
+            <a id="{{section_js}}min_close_<%=id%>" class="closeButton" style="position:absolute;margin-left:70px;" onclick="Resource_{{section_js}}.removeMin(<%=id%>)"></a>
+            <a id="{{section_js}}image_link_<%=id%>" target="_blank"></a><img onclick="Resource_{{section_js}}.imageClick(<%=id%>)" src="{{ asset('bundles/acmesfs/img/loading.gif') }}" class="sty-box-radius-5" width="90px" height="90px" id="{{section_js}}image_<%=id%>" style="margin-bottom:5px;"/>
+            <progress id="{{section_js}}progress_<%=id%>" style="width: 100%;height:5px;"></progress>
+        </div>
+    </script>
+    <div id="{{section_js}}drop_box" style="min-height: 100px;background-color: whitesmoke;" class="sty-box-padding-10 sty-box-floatcontainer sty-box-dotted sty-box-margin-10">
+        <div id="drop_label" class="sty-box-text-center">
+            <span class="sty-label-gray sty-font-20">Arrastre las imágenes o haga <a href="javascript:Resource_{{section_js}}.uploadClick()" class="sty-label-blue">click aquí</a> para cargarlas...</span>
+        </div>
+        <div id='{{section_js}}image_container'></div>
+    </div>  
+    <div id="{{section_js}}upload_message"></div>
+
+    <div id="drop_label" class="sty-box-text-center">
+        <a href="javascript:Resource_{{section_js}}.removeAll()" class="sty-label-gray sty-label-blue-hover">Eliminar todo</a>
+    </div>
+    <input id="{{section_js}}upload_button" name="filesToUpload[]" style="visibility: collapse; width: 0px;display: none;" type="file" multiple="" onchange="Resource_{{section_js}}.setToUpload(this.files)">
+    <div style="display: none">
+        <div id="{{section_js}}min_<%=id%>" class="image-min-box sty-float-left sty-box-padding-10 sty-box-dotted sty-box-radius-5 sty-box-margin-5" style="background-color:white;">
+            <a id="{{section_js}}min_close_<%=id%>" class="closeButton" style="position:absolute;margin-left:70px;" onclick="Resource_{{section_js}}.removeMin(<%=id%>)"></a>
+            <a id="{{section_js}}image_link_<%=id%>" target="_blank"></a><img onclick="Resource_{{section_js}}.imageClick(<%=id%>)" src="{{ asset('bundles/acmesfs/img/loading.gif') }}" class="sty-box-radius-5" width="90px" height="90px" id="{{section_js}}image_<%=id%>" style="margin-bottom:5px;"/>
+            <progress id="{{section_js}}progress_<%=id%>" style="width: 100%;height:5px;"></progress>
+        </div>
+    </div>
+</div>
+

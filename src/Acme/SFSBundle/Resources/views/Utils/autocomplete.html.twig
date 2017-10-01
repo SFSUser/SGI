@@ -1,0 +1,8 @@
+{# empty Twig template #}
+<script type="text/javascript">
+    $(function() {
+        $("#{{name}}").autocomplete({
+            source: JSON.parse('{{tags|json_encode()|raw}}')
+        });
+    });
+</script>

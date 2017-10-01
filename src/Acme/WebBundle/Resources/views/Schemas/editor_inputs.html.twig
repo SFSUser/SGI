@@ -1,0 +1,38 @@
+{# empty Twig template #}
+{% set space_name = entity%}
+
+{% if form.contenido is defined %}
+    {{ render(controller('AcmeSFSBundle:Utils:tinyeditor', {'input_id' : space_name ~ '_contenido','form_id' : space_name ~ '_form'})) }}
+{% endif %}
+{% if form.descripcion is defined %}
+    {{ render(controller('AcmeSFSBundle:Utils:tinyeditor', {'input_id' : space_name ~ '_descripcion','form_id' : space_name ~ '_form'})) }}
+{% endif %}
+{% if form.archivos is defined %}
+    {{ render(controller('AcmeSFSBundle:Uploader:uploader', {'identifier':'IPSCDOCertificado', 'input_id' : space_name ~ '_archivos','form_id' : space_name ~ '_form'})) }}
+{% endif %}
+{% if form.tags is defined %}
+    {{ render(controller('AcmeSFSBundle:Utils:tagger', {'input_id' : space_name ~ '_tags'})) }}
+{% endif %}
+{% if form.keywords is defined %}
+    {{ render(controller('AcmeSFSBundle:Utils:tagger', {'input_id' : space_name ~ '_keywords'})) }}
+{% endif %}
+{% if form.subcategorias is defined %}
+    {{ render(controller('AcmeSFSBundle:Utils:tagger', {'input_id' : space_name ~ '_subcategorias'})) }}
+{% endif %}
+
+{% if form.imagen is defined %}
+    {{ render(controller('AcmeSFSBundle:Utils:imagen', {'input_id' : space_name ~ '_imagen','form_id' : space_name ~ '_form'})) }}
+{% endif %}
+
+{% if form.imagenes is defined %}
+    {{ render(controller('AcmeSFSBundle:Utils:imagenes', { 
+ 'title': form.vars.data.titulo,
+ 'section' : space_name,
+ 'identifier' : form.vars.data.id, 
+ 'resource_values' : form.vars.data.imagenes,
+ 'level_path' : "/",
+ 'input_id' : space_name ~ '_imagenes',
+ 'form_id' : space_name ~ '_form',
+ 'is_multiple' : true
+})) }}
+{% endif %}

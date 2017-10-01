@@ -1,0 +1,74 @@
+
+{% if app.user.hasRole is defined and app.user.hasRole('ROLE_' ~ bundle ~ '_' ~ entity ~ '_NOT_LECTURA') %}
+    <tr>
+        <td style="height: 4px;font-size: 20px;" colspan="{{data|length > 0? data[0].columns|length + 1 : 1}}">No tiene permisos para visualizar el contenido de esta tabla.</td>
+    </tr>
+{% else %}
+    {% if buttons != '' %}
+        <tr>
+            <td style="padding-bottom: 40px" colspan="{{data|length > 0? data[0].columns|length + 1 : 1}}">
+                <div style="position: absolute">{{buttons|raw}}</div>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td style="" colspan="{{data|length > 0? data[0].columns|length + 1 : 1}}">
+                {% if data|length > 0 %}<b>{{data|length}}</b> elementos en esta pagina{% endif %}
+            </td>
+        </tr>
+    {% endif %}
+    {% for x in data %}
+        <tr class="table-item-{{x.id}}" id="element_{{x.id}}">
+            <td style="text-align: center;">
+                <img onclick="SchemaList_{{bundle ~ entity}}.printElement({{x.id}})" src="{{asset('/bundles/acmesfs/img_icons/print.png')}}"/>
+
+                {% if is_granted('ROLE_ADMIN') or app.user.hasRole('ROLE_' ~ bundle ~ '_' ~ entity ~ '_ESCRITURA') %}
+                    {% if entity2 != '' %}
+                        {% if not x.joined %}
+                            <img title="Agregar a la lista" onclick="SchemaList_{{bundle ~ entity}}.joinElement({{x.id}}, true)" src="{{asset('/bundles/acmesfs/img_icons/add.png')}}"/>
+                        {% else %} 
+                            <img title="Quitar de la lista" onclick="SchemaList_{{bundle ~ entity}}.joinElement({{x.id}}, false)" src="{{asset('/bundles/acmesfs/img_icons/close.png')}}"/>
+                        {% endif %}
+                    {% endif %}
+                    <img onclick="SchemaList_{{bundle ~ entity}}.editElement({{x.id}})" src="{{asset('/bundles/acmesfs/img_icons/edit.png')}}"/>
+                    {% if is_granted('ROLE_ADMIN') or app.user.hasRole('ROLE_' ~ bundle ~ '_' ~ entity ~ '_ELIMINAR') %}
+                        <img onclick="SchemaList_{{bundle ~ entity}}.deleteElement({{x.id}})" src="{{asset('/bundles/acmesfs/img_icons/Delete.png')}}"/>
+                    {% endif %}
+                {% endif %}     
+            </td>
+            {% for y in x.columns %}
+                {#% if loop.index < 8 %#} 
+                <td><span class="text-toggler" name="{{y.column_name}}">{{y.list_formatted|raw}}</span></td>
+                    {#% endif %#}
+                {% endfor %}
+        </tr>
+    {% endfor %}
+
+    {% for x in data %}
+        {% if loop.index == 1 and resultados|length > 1 %}
+        <tr>
+            <td></td>
+            {% for y in x.columns %}
+                <td>
+                    {% if attribute(resultados, y.column_name) is defined %}
+                        <span class="text-toggler">{{attribute(resultados, y.column_name)|round(1, 'floor') }}</span>
+                    {% endif %}
+                </td>
+            {% endfor %}
+        </tr>
+        {% endif %}
+    {% endfor %}
+    {% if buttons != '' %}
+        <tr>
+            <td style="padding-bottom: 40px" colspan="{{data|length > 0? data[0].columns|length + 1 : 1}}">
+                <div style="position: absolute">{{buttons|raw}}</div>
+            </td>
+        </tr>
+    {% endif %}
+    {#
+        <tr>
+            <td style="padding-bottom: 40px" colspan="{{data|length > 0? data[0].columns|length + 1 : 1}}">
+                <div style="position: absolute">JSON: {{resultados|json_encode()}}</div>
+            </td>
+        </tr>#}
+{% endif %}

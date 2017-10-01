@@ -1,0 +1,9 @@
+{# empty Twig template #}
+{% extends template_parent %}
+{% block title %}
+    Missing
+{% endblock %}
+{% block body %}
+    <h2>Missing</h2>
+    {% block component %} {{ parent() }}{% endblock %}
+{% endblock %}

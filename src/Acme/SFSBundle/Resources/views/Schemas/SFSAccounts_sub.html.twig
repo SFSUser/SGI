@@ -1,0 +1,7 @@
+{# empty Twig template #}
+
+{% if element_created %}
+    <div>
+        {{render(controller('AcmeSFSBundle:Schema:list', {'bundle': 'SFS', 'entity': 'SFSRoles', 'entity2': 'AcmeSFSBundle:SFSAccounts', 'id2': id}))}}
+    </div>
+{% endif %}

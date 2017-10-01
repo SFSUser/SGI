@@ -1,0 +1,7 @@
+
+#Representa un grupo de comandos por anotaciones!
+#/grupoAnotaciones/misAnotaciones
+
+_anns:
+    resource: "@AcmeSFSBundle/Controller/"
+    type:     annotation

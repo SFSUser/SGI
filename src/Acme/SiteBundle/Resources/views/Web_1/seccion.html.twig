@@ -1,0 +1,9 @@
+{# empty Twig template #}
+{% extends template_parent %}
+{% block title %}
+    Seccion
+{% endblock %}
+{% block body %}
+    <h2>Seccion</h2>
+    {% block component %} {{ parent() }}{% endblock %}
+{% endblock %}

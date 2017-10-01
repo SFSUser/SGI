@@ -1,0 +1,92 @@
+{% if is_granted('ROLE_ADMIN') %}
+    <script>
+        function toggleBlogger(identifier, state) {
+            if (state) {
+                $("#" + identifier + "_blog_editor").slideUp();
+                $("#" + identifier + "_blog_preview").slideDown();
+            } else {
+                $("#" + identifier + "_blog_editor").slideDown();
+                $("#" + identifier + "_blog_preview").slideUp();
+            }
+            /*
+            tinymce.init({selector: "", theme: "modern", plugins: ["advlist autolink lists link image charmap print preview hr anchor pagebreak", "searchreplace wordcount visualblocks visualchars code fullscreen", "insertdatetime media nonbreaking save table contextmenu directionality", "emoticons template paste textcolor moxiemanager"], toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image", toolbar2: "print preview media | forecolor backcolor emoticons", image_advtab: true, templates: [{title: 'Test template 1', content: 'Test 1'}, {title: 'Test template 2', content: 'Test 2'}]});
+
+             $("#content").data("sceditor").destroy();
+             $("#content").sceditor({
+             emoticons: false,
+             plugins: 'xhtml',
+             width: "100%",
+             height: "400px",
+             style: "/plugins/sceditor/minified/jquery.sceditor.default.min.css"
+             });*/
+        }
+    </script>
+    <div id="{{blog.identifier}}_blog_editor"
+         {% if is_granted('ROLE_ADMIN') %}
+             style="display: none;"
+         {% endif %}
+         >
+        <form id="{{blog.identifier}}_blog_form">
+            <span class="sty-label-blue">Titulo del blog</span>
+            <input class="input-soft" required="" type="text" name="title" value="{{blog.title}}">
+
+            <input class="input-soft" required="" type="hidden" name="identifier" value="{{identifier}}">
+            <div>
+                <textarea style="height: 600px;min-height: 600px;width: 100%;" id="content" required="" type="text" name="content">{{blog.content|raw}}</textarea>
+                {{ render(controller('AcmeSFSBundle:Utils:tinyeditor', { 
+ 'input_id' : 'content',
+ 'form_id' : 'blog_form'
+})) }}
+            </div>
+            <input id="{{blog.identifier}}_submit_blog_button" class="button" type="submit" value="Guardar cambios">
+        </form> 
+    </div>
+    <script>
+        $(function() {
+            $("#{{blog.identifier}}_blog_form").submit(function(event) {
+                event.preventDefault();
+                //No guarda de una vez, hay algun error (Hilo) que no guarda sincronicamente :(
+                //$("#content").data("sceditor").updateOriginal();
+                //setTimeout(function() {
+                tinyMCE.triggerSave();
+                //var cnt = tinymce.get('{{blog.identifier}}').getContent();
+                //$("#{{blog.identifier}}").val(cnt);
+                
+                var data = $("#{{blog.identifier}}_blog_form").serialize();
+                setElementDisableState("#{{blog.identifier}}_submit_blog_button", false);
+                $.ajax({
+                    url: "{{path('create_blogs')}}",
+                    data: data,
+                    success: function(d) {
+                        console.log(d);
+                        $("#{{blog.identifier}}_blog_title").html(d.title);
+                        $("#{{blog.identifier}}_blog_content").html(d.content);
+                        toggleBlogger('{{blog.identifier}}', true);
+                        setElementDisableState("#{{blog.identifier}}_submit_blog_button", true);
+                    }
+                });
+                //}, 1000);
+            });
+        });
+    </script>
+{% endif %}
+<div id="{{blog.identifier}}_blog_preview"
+     >
+    {% if is_granted('ROLE_ADMIN') %}
+        <center>
+            <button class="button" onclick="toggleBlogger('{{blog.identifier}}', false)">
+                <img src="{{asset('bundles/acmesfs/img_icons/edit.png')}}" align="top"/> Editar entrada
+            </button>
+        </center>
+    {% endif %}
+    {% if blog is null%}
+        <h1>El blog se encuentra vacio!</h1>
+    {% elseif true %}
+        <title id="{{blog.identifier}}_blog_title">{{blog.title}}</title>
+        <meta name="description" content="{{blog.content|striptags|slice(0, 255)}}">
+        <div class="segment-content" id="{{blog.identifier}}_blog_content">
+            {{blog.content|raw}}
+        </div>
+    {% endif %}
+</div>
+

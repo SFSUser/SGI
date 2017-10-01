@@ -1,0 +1,8 @@
+{# empty Twig template #}
+{% for x in data%}
+    <option 
+        {% if x.id is defined %}
+            value="{{x.id}}"
+        {% endif %}
+        >{% if x.id is defined %}{{x.id}} - {% endif %}{{x.label}}</option>
+{% endfor %}

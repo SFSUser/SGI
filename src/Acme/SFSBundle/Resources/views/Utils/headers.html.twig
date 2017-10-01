@@ -1,0 +1,24 @@
+{# empty Twig template #}
+{% if (header == 'jquery' or header == '') %}
+    <link href="{{ asset('bundles/acmesfs/jquery/jquery-ui.css') }}" rel="stylesheet" type="text/css" />
+    <script src="{{ asset('bundles/acmesfs/jquery/jquery-1.11.1.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('bundles/acmesfs/jquery/jquery-ui.js') }}" type="text/javascript"></script>
+{% endif %}
+
+{% if (header == 'bootstrap' or header == '') %}
+    <link rel="stylesheet" href="{{ asset('bundles/acmesfs/plugins/bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('bundles/acmesfs/plugins/bootstrap/css/bootstrap-theme.min.css') }}">
+    <script src="{{ asset('bundles/acmesfs/plugins/bootstrap/js/bootstrap.min.js') }}"></script>
+{% endif %}
+
+{% if (header == 'site' or header == '') %}
+    <link href="{{ asset('css/website.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('bundles/acmesfs/css/styles.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('bundles/acmesfs/animations/animations.css') }}" rel="stylesheet" type="text/css" />
+    <script src="{{ asset('bundles/acmesfs/animations/animations.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('bundles/acmesfs/js/messages.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('bundles/acmesfs/js/actions.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('bundles/acmesfs/js/utils.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('bundles/acmesfs/js/sfs.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('bundles/acmesfs/js/editor.js') }}" type="text/javascript"></script>
+{% endif %}

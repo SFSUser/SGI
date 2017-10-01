@@ -1,0 +1,56 @@
+{% set edit = '<b class="sty-label-orange">[Editar] </b>' %}
+    <span type="{{type}}" identifier="{{identifier}}" class="editable-text segment-content">{% if is_granted('ROLE_ADMIN') %}{{edit|raw}}{% endif %}{% if segment %}{{segment.value|raw}}{% else %}{{pred_value}}{% endif %}</span>
+{% if is_granted('ROLE_ADMIN') %}
+<script>
+    $(function() {
+        prepareSegments('{{path('create_segment')}}');
+    });
+    function prepareSegments(url) {
+        $(".editable-text").each(function() {
+            $(this).click(function() {
+                var type = $(this).attr("type");
+                var input = document.createElement("input");
+                input.type = $(this).attr("type");
+                if(type == "textarea"){
+                    input = document.createElement("textarea")
+                    $(input).width("100%");
+                }
+                $(input).css("color", "black");
+                $(input).attr("title", "Presione enter al finalizar para guardar cambios")
+                $(input).addClass("input-soft");
+                
+                $(this).find("b:first").remove();
+                var span = $(this);
+                $(input).val($(this).html());
+                $(this).replaceWith(input);
+
+                $(input).keyup(function(event) {
+                    if (event.keyCode == 13 && !event.shiftKey) {
+                        event.preventDefault();
+                        var value = $(input).val();
+                        $(this).attr("disabled", "");
+                        $.ajax({
+                            url: url,
+                            data: {
+                                identifier: $(span).attr("identifier"),
+                                value: value
+                            },
+                            success: function(result) {
+                                var txt = '{{edit|raw}}' + result.value;
+                                $(span).html(txt);
+                                $("[identifier=" + $(span).attr("identifier") + "]").html(txt);
+                                prepareSegments(url);
+                            }
+                        });
+                        $(this).replaceWith(span);
+                        $(span).html('<img src="{{asset('bundles/acmesfs/img/loading_mini.gif')}}" align="top" height="' + $(span).height() + '"/> <span style="font-size: ' + $(span).css("font-size") + '; color: #09C;">Guardando...</span>');
+                    }
+                });
+
+                //$(input).mouseleave(function() {
+                //});
+            });
+        });
+    }
+</script>
+{% endif %}

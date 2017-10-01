@@ -1,0 +1,20 @@
+{# empty Twig template #}
+<div class="cbp-fwslider">
+    <ul>
+        {% for x in data %}
+            <li>
+                <div class="www-gallery-slider" style="background-image: url({{x.imagenes_first.large_thumbnail}})">
+                    <div class="col-md-4">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="www-gallery-text sty-box-overflow-auto" style="opacity: 0.9">
+                             <span class="sty-font-20  layout-responsive-desktop"><b class="label label-danger">/{{x.categoria}}/</b> {{x.titulo|raw}}  </span>
+                             {{x.contenido|slice(0, 250)|raw}} 
+                             <a class="btn btn-info pull-right" href="{{path("noticia_url", {id: x.id})}}">leer más...</a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+</div>

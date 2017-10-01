@@ -1,0 +1,5 @@
+{# empty Twig template #}
+{% extends "AcmeWebBundle:Default:base.html.twig" %}
+{% block component %}
+    {{render(controller('AcmeSFSBundle:Schema:list', {'bundle': 'SFS', 'entity': 'SFSSchemaEvent', 'conds': {} }))}}
+{% endblock %}

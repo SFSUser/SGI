@@ -1,0 +1,55 @@
+{# empty Twig template #}
+{% extends template_parent %}
+{% block title %}Inicio{% endblock %}
+{% block body %}
+
+        <div class="www-home-section sty-box-overflow-auto">
+            <div class="col-md-2 sty-box-text-center"><img src="http://i.imgur.com/CAxrSo9.png" style="height: 100px"/></div>
+            <div class="col-md-10">
+                <span style="font-size: 30px;color:white">¡Ahora puede verificar los certificados en línea!</span>
+                <br>
+                <span style="font-size: 15px;color:white">Ingresa el código de tu certificado para verificar su validez en <a class="btn btn-warning" href="{{path('url_verify')}}">Verificar certificados</a></span>
+            </div>
+        </div>
+
+    {{render(controller("AcmeSiteBundle:Default:frontPortafolio"))}}
+
+        <div class="www-home-section sty-box-overflow-auto">
+            <div class="col-md-2 sty-box-text-center"><img src="http://i.imgur.com/wlI2x8P.png" style="height: 100px"/></div>
+            <div class="col-md-10">
+                <span style="font-size: 30px;color:white">Instalación y certificación de puntos de anclaje</span>
+                <br>
+                {#{app.request.getBaseURL()}#}
+                <span style="font-size: 15px;color:white">Ingresa el código de tu certificado para verificar su validez en <a class="btn btn-warning" href="{{path('url_verify')}}">Verificar certificados</a></span>
+            </div>
+        </div>
+
+    <div class="sty-box-overflow-auto sty-box-margin-top-10">
+        <div class="col-md-8">
+            <div class="sty-box-margin-bottom-5">
+                {{render(controller("AcmeSiteBundle:Default:frontNoticias"))}}
+            </div>
+            <div class="sheet-art sty-box-padding-10">
+                {{render(controller("AcmeSiteBundle:Default:frontAcerca"))}}
+                {#
+                <div class="sty-box-overflow-auto">
+                    <div class="col-md-3"><img style="margin-top: 30px" src="http://i.imgur.com/QutO4ea.png"/></div>
+                    <div class="col-md-9">
+                        <span style="font-size: 40px;color:white;">Sitio web en construcción</span>
+                        <br>
+                        <span style="font-size: 20px;color:white;float: right">Esperalo muy pronto</span>
+                    </div>
+                </div>
+                #}
+            </div>
+        </div>
+        <div class="col-md-4">
+            {% include 'AcmeSiteBundle:Fragments:sidebar.html.twig' %}
+        </div>
+    </div>
+    <script>
+        $(function () {
+            $('.cbp-fwslider').cbpFWSlider();
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,49 @@
+<div id="captcha_form">
+    <script type="text/javascript">
+        function recaptcha() {
+            executeCall("{{path('generate_captcha')}}", "capid={{captcha_id}}", function(data) {
+                console.log(data);
+                $("#captcha_text").html(data["text"]);
+            });
+        }
+
+        function checkCaptcha() {
+            $("#revisar_captcha").html("Revisando...");
+            $("#revisar_captcha").css({"color": ""});
+            var params = "capid={{captcha_id}}&value=" + $("#captcha").val();
+            executeCall("{{path('check_captcha')}}", params, function(data) {
+                console.log(data);
+                if (data["result"]) {
+                    $("#revisar_captcha").html("Coincide");
+                    $("#revisar_captcha").css({"color": "green"});
+                } else {
+                    $("#revisar_captcha").html("No coincide");
+                    $("#revisar_captcha").css({"color": "red"});
+                }
+            });
+        }
+    </script>
+    <fieldset class="sty-box-dotted sty-box-radius-10">
+        <legend class="sty-label-blue">Código de seguridad</legend>
+        <div>
+            <table id="form2" width="100%">
+                <tr>
+                    <td><span class="sty-label-blue">Numero en palabras: </span></td>
+                    <td>
+                        <div class="sty-box-color-white sty-box-dotted sty-box-radius-10 sty-box-padding-10">
+                            <span id="captcha_text" class="sty-label-orange">{{captcha}}</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><span class="sty-label-blue">Ingresar número equivalente: </span></td>
+                    <td>
+                        <input title="En este campo, escribe el número correspondiente al texto mostrado arriba" name="captcha" id="captcha" class="input-text-radius" type="number"/>
+                        <a class="sty-label-hover-blue" href="javascript:recaptcha()">Obtener nuevo número</a>
+                        <a id="revisar_captcha" class="sty-label-hover-orange sty-float-right" href="javascript:checkCaptcha()"> Revisar</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </fieldset>
+</div>

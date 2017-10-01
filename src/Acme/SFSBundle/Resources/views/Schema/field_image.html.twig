@@ -1,0 +1,57 @@
+{# empty Twig template #}
+<div style="display: inline-block;width: 150px;margin: 10px">
+    <style>
+        .sty-label-photoclip{
+            position: absolute;
+            margin-bottom: -50px;
+            z-index: 10;
+            background-color: white;
+            border-radius: 5px;
+            padding: 5px;
+            border-style: solid;
+            border-width: 1px;
+            border-color: gainsboro;
+        }
+    </style>
+    <span class="sty-box-margin-5 sty-label-photoclip">{{name|capitalize}}</span>
+    <img title="{{name|capitalize}} - Haga click en la imagen para cambiarla." name="{{name}}" onerror="this.src='{{image}}'" src="{{image}}" class="sheet-art" style="width: 100%;" id="field_image_{{token}}"/>
+    <progress value="0" id="progress_bar_{{token}}"></progress>
+    <a class="btn btn-info" id="field_button_{{token}}">Cargar</a>
+    <a class="btn btn-danger" id="field_button_remove_{{token}}">Quitar</a>
+    <input id="field_input_{{token}}" type="hidden" name="{{name}}"/>
+    <script>
+        $(function() {
+            //$("#field_input_{{token}}").change(function() {
+            $("#field_image_{{token}}").attr("src", $("#field_input_{{token}}").val());
+            $("#field_image_{{token}}").load(function(){
+                $("#progress_bar_{{token}}").val(0);
+            });
+            //});
+            $("#field_button_remove_{{token}}").click(function() {
+                if(!confirm("¿Confirma que desea eliminar esta imagen?")) return;
+                $("#field_input_{{token}}").val("").trigger("change");
+            });
+
+            $("#field_image_{{token}}, #field_button_{{token}}").click(function() {
+                var context = $("#field_image_{{token}}");
+                $(context).attr('src', '{{asset('/bundles/acmesfs/img/loading.gif')}}');
+                ImgurUploader.set("progress_bar_{{token}}", null, function(data) {
+                    console.log(data);
+                    $("#progress_bar_{{token}}").removeAttr("value");
+                    var image = data.upload.links.original;
+                    $("#field_input_{{token}}").val(image);
+                    if(image !== ""){
+                        $(context).attr('src', image);
+                    }
+                });
+                ImgurUploader.upload();
+            });
+            $("#field_input_{{token}}").change(function(){
+                var val = $(this).val();
+                if(val === null || val === undefined || val === ""){
+                    $("#field_image_{{token}}").attr('src', '{{image}}');
+                }
+            });
+        });
+    </script>
+</div>
